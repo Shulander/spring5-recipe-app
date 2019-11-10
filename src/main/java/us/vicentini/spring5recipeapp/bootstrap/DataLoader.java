@@ -14,6 +14,7 @@ import us.vicentini.spring5recipeapp.repository.CategoryRepository;
 import us.vicentini.spring5recipeapp.repository.RecipeRepository;
 import us.vicentini.spring5recipeapp.repository.UnityOfMeasureRepository;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class DataLoader implements CommandLineRunner {
     private final RecipeRepository recipeRepository;
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         log.info("Data Loader started");
         recipeRepository.saveAll(loadData());

@@ -1,7 +1,7 @@
 package us.vicentini.spring5recipeapp.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -19,8 +19,8 @@ import javax.persistence.OneToOne;
 import java.util.HashSet;
 import java.util.Set;
 
-@Getter
-@Setter
+@Data
+@EqualsAndHashCode(exclude = {"ingredients", "categories"})
 @Entity
 public class Recipe {
     @Id
