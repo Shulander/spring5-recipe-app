@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-class UnityOfMeasureRepositoryITTest {
+class UnityOfMeasureRepositoryIT {
 
     @Autowired
     private UnityOfMeasureRepository unityOfMeasureRepository;
