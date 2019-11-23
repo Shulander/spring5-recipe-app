@@ -31,7 +31,7 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     @Transactional
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         log.info("Data Loader started");
         recipeRepository.saveAll(loadData());
         log.info("Data loader finished!");
@@ -70,7 +70,9 @@ public class DataLoader implements CommandLineRunner {
         tacosRecipe.setCookTime(9);
         tacosRecipe.setPrepTime(20);
         tacosRecipe.setDifficulty(Difficulty.MODERATE);
-
+        tacosRecipe.setServings(6);
+        tacosRecipe.setSource("SimplyRecipes");
+        tacosRecipe.setUrl("http://www.simplyrecipes.com/recipes/spicy_grilled_chicken_tacos/");
         tacosRecipe.setDirections("1 Prepare a gas or charcoal grill for medium-high, direct heat.\n" +
                                   "2 Make the marinade and coat the chicken: In a large bowl, stir together the chili" +
                                   " powder, oregano, cumin, sugar, salt, garlic and orange zest. Stir in the orange " +
@@ -159,6 +161,9 @@ public class DataLoader implements CommandLineRunner {
         guacRecipe.setPrepTime(10);
         guacRecipe.setCookTime(0);
         guacRecipe.setDifficulty(Difficulty.EASY);
+        guacRecipe.setServings(4);
+        guacRecipe.setSource("SimplyRecipes");
+        guacRecipe.setUrl("http://www.simplyrecipes.com/recipes/perfect_guacamole/");
         guacRecipe.setDirections(
                 "1 Cut avocado, remove flesh: Cut the avocados in half. Remove seed. Score the inside of the avocado " +
                 "with a blunt knife and scoop out the flesh with a spoon" +

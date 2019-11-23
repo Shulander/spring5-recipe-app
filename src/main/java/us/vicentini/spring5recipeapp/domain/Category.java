@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,10 +16,11 @@ import javax.persistence.ManyToMany;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(exclude = "recipes")
 @Entity
 @Builder
 @NoArgsConstructor
+@ToString(exclude = "recipes")
+@EqualsAndHashCode(exclude = "recipes")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Category {
     @Id

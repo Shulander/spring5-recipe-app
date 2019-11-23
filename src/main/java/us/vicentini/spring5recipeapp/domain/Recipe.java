@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -27,6 +28,7 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = {"ingredients", "categories"})
 @Entity
 @NoArgsConstructor
+@ToString(exclude = {"ingredients", "categories"})
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class Recipe {
@@ -40,16 +42,22 @@ public class Recipe {
     private Integer servings;
     private String source;
     private String url;
+
     @Lob
     private String directions;
+
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
+
     @Lob
     private Byte[] image;
+
     @OneToOne(cascade = CascadeType.ALL)
     private Notes notes;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "recipe")
     private Set<Ingredient> ingredients = new HashSet<>();
+
     @ManyToMany
     @JoinTable(name = "recipe_category",
             joinColumns = @JoinColumn(name = "recipe_id"),
