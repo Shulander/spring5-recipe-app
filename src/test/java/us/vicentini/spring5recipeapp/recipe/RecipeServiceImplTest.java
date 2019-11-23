@@ -10,17 +10,17 @@ import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.repository.RecipeRepository;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-// this replaces @RunWith from junit 4
-//@ExtendWith(MockitoExtension.class)
 class RecipeServiceImplTest {
 
     @Mock
@@ -32,6 +32,27 @@ class RecipeServiceImplTest {
     void setUp() {
         MockitoAnnotations.initMocks(this);
         recipeService = new RecipeServiceImpl(recipeRepository);
+    }
+
+    @Test
+    void getRecipesFindById() {
+        Recipe recipe = Mockito.mock(Recipe.class);
+        when(recipeRepository.findById(1L)).thenReturn(Optional.of(recipe));
+
+        Recipe recipeReturned = recipeService.findById(1L);
+
+        assertNotNull(recipeReturned, "Null recipe returned");
+        verify(recipeRepository).findById(1L);
+    }
+
+    @Test
+    void getRecipesFindByIdNotFound() {
+        when(recipeRepository.findById(1L)).thenReturn(Optional.empty());
+
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> recipeService.findById(1L));
+
+        assertEquals("Recipe Not Found for id: 1", ex.getMessage());
+        verify(recipeRepository).findById(1L);
     }
 
     @Test
