@@ -6,7 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import us.vicentini.spring5recipeapp.domain.Recipe;
-import us.vicentini.spring5recipeapp.recipe.RecipeService;
+import us.vicentini.spring5recipeapp.services.RecipeService;
 
 @Controller
 @RequestMapping("/recipe")

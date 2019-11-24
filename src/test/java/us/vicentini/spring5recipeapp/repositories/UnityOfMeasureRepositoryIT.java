@@ -1,4 +1,4 @@
-package us.vicentini.spring5recipeapp.repository;
+package us.vicentini.spring5recipeapp.repositories;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

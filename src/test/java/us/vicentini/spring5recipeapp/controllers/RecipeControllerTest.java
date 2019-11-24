@@ -8,7 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import us.vicentini.spring5recipeapp.domain.Recipe;
-import us.vicentini.spring5recipeapp.recipe.RecipeService;
+import us.vicentini.spring5recipeapp.services.RecipeService;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @ExtendWith(MockitoExtension.class)
-public class RecipeControllerTest {
+class RecipeControllerTest {
 
 
     @Mock
@@ -30,7 +30,7 @@ public class RecipeControllerTest {
 
 
     @Test
-    public void testGetRecipe() throws Exception {
+    void testGetRecipe() throws Exception {
         Recipe recipe = new Recipe();
         recipe.setId(1L);
 

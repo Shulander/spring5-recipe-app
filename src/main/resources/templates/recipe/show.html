@@ -97,7 +97,7 @@
                                     <li th:remove="all">1 Teaspoon of chocolate</li>
                                     <!--/*@thymesVar id="ingredient" type="us.vicentini.spring5recipeapp.domain.Ingredient"*/-->
                                     <li th:each="ingredient : ${recipe.ingredients}"
-                                        th:text="${ingredient.getAmount()+ ' ' + ingredient.getUom().getDescription()+ ' - ' + ingredient.getDescription()}">
+                                        th:text="${ingredient.getAmount()+ ' ' + ingredient.getUnitOfMeasure().getDescription()+ ' - ' + ingredient.getDescription()}">
                                         1 Teaspoon of Sugar
                                     </li>
                                 </ul>
@@ -137,7 +137,7 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-12">
-                                <p th:text="${recipe.notes.notes}">
+                                <p th:text="${recipe.notes.getRecipeNotes}">
                                     Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
                                     dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes,
                                     nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium

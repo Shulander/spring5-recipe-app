@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import us.vicentini.spring5recipeapp.recipe.RecipeService;
+import us.vicentini.spring5recipeapp.services.RecipeService;
 
 @Slf4j
 @Controller

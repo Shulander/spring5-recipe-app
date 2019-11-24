@@ -55,9 +55,11 @@ public class Recipe {
     @OneToOne(cascade = CascadeType.ALL)
     private Notes notes;
 
+    @Builder.Default
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "recipe")
     private Set<Ingredient> ingredients = new HashSet<>();
 
+    @Builder.Default
     @ManyToMany
     @JoinTable(name = "recipe_category",
             joinColumns = @JoinColumn(name = "recipe_id"),
@@ -78,9 +80,9 @@ public class Recipe {
         }
     }
 
-    public void addCategory(Category ingredient) {
-        if (ingredient != null) {
-            categories.add(ingredient);
+    public void addCategory(Category category) {
+        if (category != null) {
+            categories.add(category);
         }
     }
 }

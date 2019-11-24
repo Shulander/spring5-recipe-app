@@ -1,9 +1,13 @@
-package us.vicentini.spring5recipeapp.recipe;
+package us.vicentini.spring5recipeapp.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import us.vicentini.spring5recipeapp.commands.RecipeCommand;
+import us.vicentini.spring5recipeapp.converters.RecipeCommandToRecipe;
+import us.vicentini.spring5recipeapp.converters.RecipeToRecipeCommand;
 import us.vicentini.spring5recipeapp.domain.Recipe;
-import us.vicentini.spring5recipeapp.repository.RecipeRepository;
+import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
 
 import java.util.Optional;
 import java.util.Set;
@@ -15,6 +19,10 @@ import java.util.stream.StreamSupport;
 class RecipeServiceImpl implements RecipeService {
 
     private final RecipeRepository recipeRepository;
+
+    private final RecipeCommandToRecipe recipeCommandToRecipe;
+
+    private final RecipeToRecipeCommand recipeToRecipeCommand;
 
     @Override
     public Set<Recipe> getRecipes() {
@@ -29,5 +37,13 @@ class RecipeServiceImpl implements RecipeService {
         return recipeOptional.orElseThrow(() -> {
             throw new RuntimeException("Recipe Not Found for id: " + id);
         });
+    }
+
+    @Override
+    @Transactional
+    public RecipeCommand saveRecipeCommand(RecipeCommand testRecipeCommand) {
+        Recipe recipe = recipeCommandToRecipe.convert(testRecipeCommand);
+        Recipe savedRecipe = recipeRepository.save(recipe);
+        return recipeToRecipeCommand.convert(savedRecipe);
     }
 }
