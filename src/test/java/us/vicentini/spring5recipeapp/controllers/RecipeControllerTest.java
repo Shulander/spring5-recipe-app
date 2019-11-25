@@ -1,5 +1,6 @@
 package us.vicentini.spring5recipeapp.controllers;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +15,8 @@ import us.vicentini.spring5recipeapp.services.RecipeService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -33,13 +36,17 @@ class RecipeControllerTest {
     @InjectMocks
     private RecipeController controller;
 
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+    }
 
     @Test
     void testGetRecipe() throws Exception {
         Recipe recipe = new Recipe();
         recipe.setId(1L);
-
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         when(recipeService.findById(anyLong())).thenReturn(recipe);
 
@@ -51,8 +58,6 @@ class RecipeControllerTest {
 
     @Test
     void testNewRecipe() throws Exception {
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-
         mockMvc.perform(get("/recipe/new"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("recipe/recipeform"))
@@ -62,8 +67,6 @@ class RecipeControllerTest {
 
     @Test
     void testPersistNewRecipe() throws Exception {
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-
         Long recipeID = 3L;
         when(recipeService.saveRecipeCommand(any(RecipeCommand.class)))
                 .thenReturn(RecipeCommand.builder().id(recipeID).build());
@@ -80,18 +83,26 @@ class RecipeControllerTest {
                                 .param("directions", "directions")
                                 .param("notes.recipeNotes", "notes"))
                 .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/recipe/3/show/"))
                 .andExpect(header().string("Location", "/recipe/3/show/"));
     }
 
     @Test
     void testUpdateRecipeView() throws Exception {
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-
         when(recipeService.findCommandById(1L)).thenReturn(RecipeCommand.builder().id(1L).build());
 
         mockMvc.perform(get("/recipe/1/update"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("recipe/recipeform"))
                 .andExpect(model().attributeExists("recipe"));
+    }
+
+    @Test
+    void testDeleteAction() throws Exception {
+        mockMvc.perform(get("/recipe/1/delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/"));
+
+        verify(recipeService, times(1)).deleteById(anyLong());
     }
 }

@@ -3,6 +3,7 @@ package us.vicentini.spring5recipeapp.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,21 +19,21 @@ public class RecipeController {
 
     private final RecipeService recipeService;
 
-    @RequestMapping({"/{id}/show"})
+    @GetMapping({"/{id}/show"})
     public String showRecipe(@PathVariable Long id, Model model) {
         Recipe recipe = recipeService.findById(id);
         model.addAttribute("recipe", recipe);
         return "recipe/show";
     }
 
-    @RequestMapping("/new")
+    @GetMapping("/new")
     public String newRecipe(Model model) {
         model.addAttribute("recipe", new RecipeCommand());
 
         return "recipe/recipeform";
     }
 
-    @RequestMapping("/{id}/update")
+    @GetMapping("/{id}/update")
     public String newRecipe(@PathVariable Long id, Model model) {
         RecipeCommand recipe = recipeService.findCommandById(id);
         model.addAttribute("recipe", recipe);
@@ -45,5 +46,12 @@ public class RecipeController {
         RecipeCommand savedCommand = recipeService.saveRecipeCommand(command);
 
         return "redirect:/recipe/" + savedCommand.getId() + "/show/";
+    }
+
+    @GetMapping({"/{id}/delete"})
+    public String delete(@PathVariable Long id) {
+        recipeService.deleteById(id);
+
+        return "redirect:/";
     }
 }

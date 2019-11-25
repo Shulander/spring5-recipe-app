@@ -89,6 +89,14 @@ class RecipeServiceImplTest {
         verify(recipeToRecipeCommand).convert(recipe);
     }
 
+    @Test
+    void testDeleteById() {
+
+        recipeService.deleteById(1L);
+
+        verify(recipeRepository).deleteById(1L);
+    }
+
     @AfterEach
     void tearDown() {
         verifyNoMoreInteractions(recipeRepository);
