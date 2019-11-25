@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
-import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.services.RecipeService;
 
 @Controller
@@ -21,7 +20,7 @@ public class RecipeController {
 
     @GetMapping({"/{id}/show"})
     public String showRecipe(@PathVariable Long id, Model model) {
-        Recipe recipe = recipeService.findById(id);
+        RecipeCommand recipe = recipeService.findCommandById(id);
         model.addAttribute("recipe", recipe);
         return "recipe/show";
     }
