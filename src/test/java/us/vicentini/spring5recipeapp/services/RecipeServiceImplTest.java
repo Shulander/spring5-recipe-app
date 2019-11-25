@@ -4,8 +4,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.converters.RecipeCommandToRecipe;
 import us.vicentini.spring5recipeapp.converters.RecipeToRecipeCommand;
 import us.vicentini.spring5recipeapp.domain.Recipe;
@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -42,7 +43,7 @@ class RecipeServiceImplTest {
 
     @Test
     void getRecipesFindById() {
-        Recipe recipe = Mockito.mock(Recipe.class);
+        Recipe recipe = mock(Recipe.class);
         when(recipeRepository.findById(1L)).thenReturn(Optional.of(recipe));
 
         Recipe recipeReturned = recipeService.findById(1L);
@@ -63,7 +64,7 @@ class RecipeServiceImplTest {
 
     @Test
     void getRecipes() {
-        Recipe recipe = Mockito.mock(Recipe.class);
+        Recipe recipe = mock(Recipe.class);
         when(recipeRepository.findAll()).thenReturn(Collections.singletonList(recipe));
 
         Set<Recipe> recipes = recipeService.getRecipes();
@@ -72,6 +73,20 @@ class RecipeServiceImplTest {
         assertFalse(recipes.isEmpty());
         assertEquals(recipe, recipes.iterator().next());
         verify(recipeRepository).findAll();
+    }
+
+    @Test
+    void getRecipesCommandFindById() {
+        Recipe recipe = mock(Recipe.class);
+        RecipeCommand recipeCommand = mock(RecipeCommand.class);
+        when(recipeRepository.findById(1L)).thenReturn(Optional.of(recipe));
+        when(recipeToRecipeCommand.convert(recipe)).thenReturn(recipeCommand);
+
+        RecipeCommand recipeReturned = recipeService.findCommandById(1L);
+
+        assertNotNull(recipeReturned, "Null recipe returned");
+        verify(recipeRepository).findById(1L);
+        verify(recipeToRecipeCommand).convert(recipe);
     }
 
     @AfterEach

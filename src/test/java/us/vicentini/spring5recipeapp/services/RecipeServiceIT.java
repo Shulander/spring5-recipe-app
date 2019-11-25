@@ -13,6 +13,7 @@ import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @ExtendWith(SpringExtension.class)
@@ -50,5 +51,16 @@ public class RecipeServiceIT {
         assertEquals(testRecipe.getId(), savedRecipeCommand.getId());
         assertEquals(testRecipe.getCategories().size(), savedRecipeCommand.getCategories().size());
         assertEquals(testRecipe.getIngredients().size(), savedRecipeCommand.getIngredients().size());
+    }
+
+    @Transactional
+    @Test
+    void testFindCommandById() {
+
+        //when
+        RecipeCommand recipeCommand = recipeService.findCommandById(1L);
+
+        //then
+        assertNotNull(recipeCommand);
     }
 }

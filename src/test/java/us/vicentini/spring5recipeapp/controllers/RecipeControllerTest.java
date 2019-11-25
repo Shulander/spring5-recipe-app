@@ -43,7 +43,7 @@ class RecipeControllerTest {
 
         when(recipeService.findById(anyLong())).thenReturn(recipe);
 
-        mockMvc.perform(get("/recipe/show/1"))
+        mockMvc.perform(get("/recipe/1/show"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("recipe/show"))
                 .andExpect(model().attributeExists("recipe"));
@@ -70,10 +70,28 @@ class RecipeControllerTest {
 
         mockMvc.perform(post("/recipe/")
                                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                                .content("id=&description=my+description&prepTime=1&cookTime=2&servings=3&source" +
-                                         "=source&url=url.com&directions=directions&notes.recipeNotes=notes"))
+                                .param("id", "")
+                                .param("description", "my+description")
+                                .param("prepTime", "1")
+                                .param("cookTime", "2")
+                                .param("servings", "3")
+                                .param("source", "source")
+                                .param("url", "url.com")
+                                .param("directions", "directions")
+                                .param("notes.recipeNotes", "notes"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(header().string("Location", "/recipe/show/" + recipeID));
+                .andExpect(header().string("Location", "/recipe/3/show/"));
+    }
 
+    @Test
+    void testUpdateRecipeView() throws Exception {
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+
+        when(recipeService.findCommandById(1L)).thenReturn(RecipeCommand.builder().id(1L).build());
+
+        mockMvc.perform(get("/recipe/1/update"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("recipe/recipeform"))
+                .andExpect(model().attributeExists("recipe"));
     }
 }
