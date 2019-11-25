@@ -10,12 +10,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
-import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.services.RecipeService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -45,10 +43,8 @@ class RecipeControllerTest {
 
     @Test
     void testGetRecipe() throws Exception {
-        Recipe recipe = new Recipe();
-        recipe.setId(1L);
-
-        when(recipeService.findById(anyLong())).thenReturn(recipe);
+        RecipeCommand recipe = RecipeCommand.builder().id(1L).build();
+        when(recipeService.findCommandById(anyLong())).thenReturn(recipe);
 
         mockMvc.perform(get("/recipe/1/show"))
                 .andExpect(status().isOk())
@@ -103,6 +99,6 @@ class RecipeControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
 
-        verify(recipeService, times(1)).deleteById(anyLong());
+        verify(recipeService).deleteById(anyLong());
     }
 }

@@ -19,9 +19,14 @@ public class IngredientToIngredientCommand implements Converter<Ingredient, Ingr
 
         return IngredientCommand.builder()
                 .id(ingredient.getId())
+                .recipeId(getRecipeId(ingredient))
                 .amount(ingredient.getAmount())
                 .description(ingredient.getDescription())
                 .unitOfMeasure(unitOfMeasureToUnitOfMeasureCommand.convert(ingredient.getUnitOfMeasure()))
                 .build();
+    }
+
+    private Long getRecipeId(Ingredient ingredient) {
+        return ingredient.getRecipe() == null ? null : ingredient.getRecipe().getId();
     }
 }
