@@ -3,7 +3,9 @@ package us.vicentini.spring5recipeapp.domain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -19,6 +21,8 @@ import static lombok.AccessLevel.PRIVATE;
 @Entity
 @Builder
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = {"recipe"})
+@ToString(exclude = "recipe")
 @AllArgsConstructor(access = PRIVATE)
 public class Ingredient {
     @Id
