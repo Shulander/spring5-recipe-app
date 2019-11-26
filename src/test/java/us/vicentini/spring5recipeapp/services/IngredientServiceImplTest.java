@@ -7,22 +7,24 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import us.vicentini.spring5recipeapp.commands.IngredientCommand;
+import us.vicentini.spring5recipeapp.commands.UnitOfMeasureCommand;
 import us.vicentini.spring5recipeapp.converters.IngredientCommandToIngredient;
 import us.vicentini.spring5recipeapp.converters.IngredientToIngredientCommand;
 import us.vicentini.spring5recipeapp.converters.UnitOfMeasureCommandToUnitOfMeasure;
 import us.vicentini.spring5recipeapp.converters.UnitOfMeasureToUnitOfMeasureCommand;
 import us.vicentini.spring5recipeapp.domain.Ingredient;
 import us.vicentini.spring5recipeapp.domain.Recipe;
+import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
 import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
 import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureRepository;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -109,29 +111,84 @@ class IngredientServiceImplTest {
     }
 
     @Test
-    public void testSaveRecipeCommand() throws Exception {
+    public void testUpdateRecipeCommand() throws Exception {
         //given
         IngredientCommand command = IngredientCommand.builder()
                 .id(3L)
                 .recipeId(2L)
+                .amount(BigDecimal.ONE)
+                .description("description")
+                .unitOfMeasure(UnitOfMeasureCommand.builder()
+                                       .id(1L)
+                                       .description("uom")
+                                       .build())
                 .build();
 
-        Optional<Recipe> recipeOptional = Optional.of(new Recipe());
+        Recipe recipe = Recipe.builder()
+                .id(2L)
+                .build();
+        recipe.addIngredient(Ingredient.builder().id(1L).build());
+        recipe.addIngredient(Ingredient.builder().id(2L).build());
+        recipe.addIngredient(Ingredient.builder().id(3L).build());
+        Optional<Recipe> recipeOptional = Optional.of(recipe);
 
         Recipe savedRecipe = Recipe.builder().id(2L).build();
         savedRecipe.addIngredient(Ingredient.builder().id(3L).build());
 
+        UnitOfMeasure uom = UnitOfMeasure.builder().id(1L).description("uom").build();
         when(recipeRepository.findById(anyLong())).thenReturn(recipeOptional);
         when(recipeRepository.save(any(Recipe.class))).thenReturn(savedRecipe);
+        when(unitOfMeasureRepository.findById(1L)).thenReturn(Optional.of(uom));
 
         //when
         IngredientCommand savedCommand = ingredientService.saveIngredientCommand(command);
 
         //then
         assertEquals(Long.valueOf(3L), savedCommand.getId());
-        verify(recipeRepository, times(1)).findById(anyLong());
-        verify(recipeRepository, times(1)).save(any(Recipe.class));
+        verify(recipeRepository).findById(anyLong());
+        verify(recipeRepository).save(any(Recipe.class));
+        verify(unitOfMeasureRepository).findById(1L);
 
+    }
+
+    @Test
+    public void testSaveNewRecipeCommand() throws Exception {
+        //given
+        IngredientCommand ingredientCommand = IngredientCommand.builder()
+                .recipeId(2L)
+                .amount(BigDecimal.ONE)
+                .description("description")
+                .unitOfMeasure(UnitOfMeasureCommand.builder()
+                                       .id(1L)
+                                       .build())
+                .build();
+        Optional<Recipe> recipeOptional = Optional.of(Recipe.builder().id(2L).build());
+
+        Recipe savedRecipe = Recipe.builder().id(2L).build();
+        Ingredient ingredient = Ingredient.builder()
+                .id(3L)
+                .amount(BigDecimal.ONE)
+                .description("description")
+                .unitOfMeasure(UnitOfMeasure.builder()
+                                       .id(1L)
+                                       .description("uom")
+                                       .build())
+                .build();
+        savedRecipe.addIngredient(ingredient);
+
+        when(recipeRepository.findById(2L)).thenReturn(recipeOptional);
+        when(recipeRepository.save(recipeOptional.get())).thenReturn(savedRecipe);
+
+        //when
+        IngredientCommand savedCommand = ingredientService.saveIngredientCommand(ingredientCommand);
+
+        //then
+        assertEquals(Long.valueOf(3L), savedCommand.getId());
+        assertEquals(ingredientCommand.getAmount(), savedCommand.getAmount());
+        assertEquals(ingredientCommand.getDescription(), savedCommand.getDescription());
+        assertEquals(ingredientCommand.getUnitOfMeasure().getId(), savedCommand.getUnitOfMeasure().getId());
+        verify(recipeRepository).findById(2L);
+        verify(recipeRepository).save(any(Recipe.class));
     }
 
 

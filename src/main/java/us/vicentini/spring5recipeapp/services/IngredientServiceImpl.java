@@ -11,7 +11,7 @@ import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
 import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
 import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureRepository;
 
-import java.util.Optional;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -24,14 +24,9 @@ public class IngredientServiceImpl implements IngredientService {
 
     @Override
     public IngredientCommand findByRecipeIdAndIngredientId(Long recipeId, Long ingredientId) {
-        return recipeRepository.findById(recipeId)
-                .orElseThrow(() -> new RuntimeException("Recipe Not Found for id: " + recipeId))
-                .getIngredients()
-                .stream()
-                .filter(ingredient -> ingredient.getId().equals(ingredientId))
-                .findFirst()
-                .map(ingredientToIngredientCommand::convert)
-                .orElseThrow(() -> new RuntimeException("Ingredient Not Found for id: " + ingredientId));
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new RuntimeException("Recipe Not Found for id: " + recipeId));
+        return findRecipeIngredientCommand(IngredientCommand.builder().id(ingredientId).build(), recipe);
     }
 
     @Override
@@ -39,29 +34,42 @@ public class IngredientServiceImpl implements IngredientService {
         Recipe recipe = recipeRepository.findById(ingredientCommand.getRecipeId())
                 .orElseThrow(() -> new RuntimeException("Recipe Not Found for id: " + ingredientCommand.getRecipeId()));
 
-        Optional<Ingredient> ingredientOptional = recipe
-                .getIngredients()
-                .stream()
-                .filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
-                .findFirst();
-
-        if (ingredientOptional.isPresent()) {
-            Ingredient ingredient = ingredientOptional.get();
-            ingredient.setAmount(ingredientCommand.getAmount());
-            ingredient.setDescription(ingredientCommand.getDescription());
-            ingredient.setUnitOfMeasure(getById(ingredientCommand));
-        } else {
-            Ingredient convert = ingredientCommandToIngredient.convert(ingredientCommand);
-            recipe.addIngredient(convert);
-        }
-
-        return recipeRepository.save(recipe)
-                .getIngredients()
+        recipe.getIngredients()
                 .stream()
                 .filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
                 .findFirst()
+                .ifPresentOrElse(ingredient -> {
+                    ingredient.setAmount(ingredientCommand.getAmount());
+                    ingredient.setDescription(ingredientCommand.getDescription());
+                    ingredient.setUnitOfMeasure(getById(ingredientCommand));
+                }, () -> {
+                    Ingredient convert = ingredientCommandToIngredient.convert(ingredientCommand);
+                    recipe.addIngredient(convert);
+                });
+
+        Recipe savedRecipe = recipeRepository.save(recipe);
+        return findRecipeIngredientCommand(ingredientCommand, savedRecipe);
+    }
+
+    private IngredientCommand findRecipeIngredientCommand(IngredientCommand ingredientCommand, Recipe recipe) {
+        return recipe
+                .getIngredients()
+                .stream()
+                .filter(ingredient -> isSameIngredient(ingredientCommand, ingredient))
+                .findFirst()
                 .map(ingredientToIngredientCommand::convert)
                 .orElseThrow(() -> new RuntimeException("Ingredient Not Found for id: " + ingredientCommand.getId()));
+    }
+
+    private boolean isSameIngredient(IngredientCommand ingredientCommand, Ingredient ingredient) {
+        if (ingredientCommand.getId() != null) {
+            return ingredient.getId().equals(ingredientCommand.getId());
+        } else {
+            return Objects.equals(ingredient.getDescription(), ingredientCommand.getDescription())
+                   && Objects.equals(ingredient.getAmount(), ingredientCommand.getAmount())
+                   && Objects.equals(ingredient.getUnitOfMeasure().getId(),
+                                     ingredientCommand.getUnitOfMeasure().getId());
+        }
     }
 
     private UnitOfMeasure getById(IngredientCommand ingredientCommand) {

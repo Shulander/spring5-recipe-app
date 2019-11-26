@@ -56,4 +56,18 @@ public class IngredientController {
 
         return "redirect:/recipe/" + savedCommand.getRecipeId() + "/ingredient/" + savedCommand.getId() + "/show";
     }
+
+    @GetMapping("/recipe/{recipeId}/ingredient/new")
+    public String newRecipeIngredient(@PathVariable Long recipeId, Model model) {
+        RecipeCommand recipeCommand = recipeService.findCommandById(Long.valueOf(recipeId));
+        //todo raise exception if null
+
+        IngredientCommand ingredient = IngredientCommand.builder()
+                .recipeId(recipeCommand.getId())
+                .build();
+        model.addAttribute("ingredient", ingredient);
+        model.addAttribute("uomList", unitOfMeasureService.listAllUoms());
+
+        return "recipe/ingredient/ingredientform";
+    }
 }
