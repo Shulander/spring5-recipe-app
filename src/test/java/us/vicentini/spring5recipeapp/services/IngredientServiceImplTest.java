@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import us.vicentini.spring5recipeapp.commands.IngredientCommand;
@@ -22,7 +23,10 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
@@ -111,7 +115,7 @@ class IngredientServiceImplTest {
     }
 
     @Test
-    public void testUpdateRecipeCommand() throws Exception {
+    void testUpdateRecipeCommand() throws Exception {
         //given
         IngredientCommand command = IngredientCommand.builder()
                 .id(3L)
@@ -152,7 +156,7 @@ class IngredientServiceImplTest {
     }
 
     @Test
-    public void testSaveNewRecipeCommand() throws Exception {
+    void testSaveNewRecipeCommand() throws Exception {
         //given
         IngredientCommand ingredientCommand = IngredientCommand.builder()
                 .recipeId(2L)
@@ -191,6 +195,29 @@ class IngredientServiceImplTest {
         verify(recipeRepository).save(any(Recipe.class));
     }
 
+    @Test
+    void deleteRecipeIngredient() {
+        //given
+        ArgumentCaptor<Recipe> acRecipe = ArgumentCaptor.forClass(Recipe.class);
+        Recipe recipe = Recipe.builder().id(1L).build();
+        recipe.addIngredient(Ingredient.builder().id(1L).build());
+        recipe.addIngredient(Ingredient.builder().id(2L).build());
+        recipe.addIngredient(Ingredient.builder().id(3L).build());
+        when(recipeRepository.findById(1L)).thenReturn(Optional.of(recipe));
+
+        //when
+        ingredientService.deleteByRecipeIdAndIngredientId(1L, 2L);
+
+        //then
+        verify(recipeRepository).findById(1L);
+        verify(recipeRepository).save(acRecipe.capture());
+        Recipe capturedRecipe = acRecipe.getValue();
+        assertNotNull(capturedRecipe);
+        assertEquals(2, capturedRecipe.getIngredients().size());
+        assertTrue(capturedRecipe.getIngredients().contains(Ingredient.builder().id(1L).build()));
+        assertFalse(capturedRecipe.getIngredients().contains(Ingredient.builder().id(2L).build()));
+        assertTrue(capturedRecipe.getIngredients().contains(Ingredient.builder().id(3L).build()));
+    }
 
     @AfterEach
     void tearDown() {

@@ -56,7 +56,7 @@ public class Recipe {
     private Notes notes;
 
     @Builder.Default
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "recipe")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "recipe", orphanRemoval = true)
     private Set<Ingredient> ingredients = new HashSet<>();
 
     @Builder.Default
