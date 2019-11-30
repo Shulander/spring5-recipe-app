@@ -9,9 +9,12 @@ import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.domain.Difficulty;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RecipeCommandToRecipeTest {
     private static final Long RECIPE_ID = 1L;
@@ -63,6 +66,8 @@ class RecipeCommandToRecipeTest {
         recipeCommand.setServings(SERVINGS);
         recipeCommand.setSource(SOURCE);
         recipeCommand.setUrl(URL);
+        Byte[] imageBytes = new Byte[]{1, 2, 3};
+        recipeCommand.setImage(imageBytes);
 
         NotesCommand notes = new NotesCommand();
         notes.setId(NOTES_ID);
@@ -100,6 +105,7 @@ class RecipeCommandToRecipeTest {
         assertEquals(SERVINGS, recipe.getServings());
         assertEquals(SOURCE, recipe.getSource());
         assertEquals(URL, recipe.getUrl());
+        assertTrue(Arrays.equals(imageBytes, recipe.getImage()));
         assertEquals(NOTES_ID, recipe.getNotes().getId());
         assertEquals(2, recipe.getCategories().size());
         assertEquals(2, recipe.getIngredients().size());

@@ -1,6 +1,8 @@
 package us.vicentini.spring5recipeapp.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,11 @@ import org.springframework.web.multipart.MultipartFile;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.services.ImageService;
 import us.vicentini.spring5recipeapp.services.RecipeService;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 @Controller
 @RequiredArgsConstructor
@@ -32,5 +39,23 @@ public class ImageController {
         imageService.saveImageFile(recipeId, imageFile);
 
         return "redirect:/recipe/" + recipeId + "/show";
+    }
+
+    @GetMapping("/recipe/{recipeId}/recipeimage")
+    public void getImage(@PathVariable Long recipeId, Model model, HttpServletResponse response) throws IOException {
+        RecipeCommand recipe = recipeService.findCommandById(recipeId);
+        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+        Byte[] originalFile = recipe.getImage();
+        byte[] byteImage = getBytes(originalFile);
+        InputStream is = new ByteArrayInputStream(byteImage);
+        IOUtils.copy(is, response.getOutputStream());
+    }
+
+    private byte[] getBytes(Byte[] originalFile) {
+        byte[] byteImage = new byte[originalFile.length];
+        for (int i = 0; i < byteImage.length; i++) {
+            byteImage[i] = originalFile[i];
+        }
+        return byteImage;
     }
 }

@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 
+import java.util.Arrays;
+
 @Component
 @RequiredArgsConstructor
 public class RecipeToRecipeCommand implements Converter<Recipe, RecipeCommand> {
@@ -28,6 +30,7 @@ public class RecipeToRecipeCommand implements Converter<Recipe, RecipeCommand> {
                 .servings(recipe.getServings())
                 .source(recipe.getSource())
                 .url(recipe.getUrl())
+                .image(copyImageByteArray(recipe.getImage()))
                 .notes(notesToNotesCommand.convert(recipe.getNotes()))
                 .build();
 
@@ -39,5 +42,12 @@ public class RecipeToRecipeCommand implements Converter<Recipe, RecipeCommand> {
                         .add(ingredientToIngredientCommand.convert(ingredientCommand)));
 
         return returnRecipe;
+    }
+
+    private Byte[] copyImageByteArray(Byte[] image) {
+        if (image == null) {
+            return null;
+        }
+        return Arrays.copyOf(image, image.length);
     }
 }

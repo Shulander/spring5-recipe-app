@@ -28,6 +28,7 @@ public class RecipeCommand {
     private String source;
     private String url;
     private NotesCommand notes;
+    private Byte[] image;
     @Builder.Default
     private Collection<CategoryCommand> categories = new LinkedList<>();
     @Builder.Default
