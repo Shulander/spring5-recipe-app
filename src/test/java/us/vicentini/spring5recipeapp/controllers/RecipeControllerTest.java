@@ -60,7 +60,8 @@ class RecipeControllerTest {
         when(recipeService.findCommandById(anyLong())).thenThrow(NotFoundException.class);
 
         mockMvc.perform(get("/recipe/1/show"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("404error"));
     }
 
 
@@ -109,7 +110,7 @@ class RecipeControllerTest {
     void testDeleteAction() throws Exception {
         mockMvc.perform(get("/recipe/1/delete"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/"));
+                .andExpect(view().name("redirect:/index"));
 
         verify(recipeService).deleteById(anyLong());
     }
