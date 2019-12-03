@@ -49,7 +49,10 @@ class ImageControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(controller)
+                .setControllerAdvice(new ControllerExceptionHandler())
+                .build();
     }
 
     @Test
@@ -104,6 +107,17 @@ class ImageControllerTest {
         assertEquals(s.getBytes().length, responseBytes.length);
         verify(recipeService).findCommandById(anyLong());
     }
+
+
+    @Test
+    public void testGetImageNumberFormatException() throws Exception {
+
+        mockMvc.perform(get("/recipe/asdf/recipeimage"))
+                .andExpect(status().isBadRequest())
+                .andExpect(view().name("400error"))
+                .andExpect(model().attributeExists("exception"));
+    }
+
 
     @AfterEach
     void tearDown() {

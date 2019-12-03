@@ -47,8 +47,11 @@ class IngredientControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    void setUp() throws Exception {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+    void setUp() {
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(controller)
+                .setControllerAdvice(new ControllerExceptionHandler())
+                .build();
     }
 
     @Test
@@ -153,6 +156,17 @@ class IngredientControllerTest {
         //then
         verify(ingredientService).deleteByRecipeIdAndIngredientId(1L, 2L);
     }
+
+
+    @Test
+    public void testGetIngredientNumberFormatException() throws Exception {
+
+        mockMvc.perform(get("/recipe/1/ingredient/asdf/show"))
+                .andExpect(status().isBadRequest())
+                .andExpect(view().name("400error"))
+                .andExpect(model().attributeExists("exception"));
+    }
+
 
     @AfterEach
     void tearDown() {
