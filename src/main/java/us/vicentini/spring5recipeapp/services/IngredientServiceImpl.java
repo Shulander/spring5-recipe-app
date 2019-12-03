@@ -8,6 +8,7 @@ import us.vicentini.spring5recipeapp.converters.IngredientToIngredientCommand;
 import us.vicentini.spring5recipeapp.domain.Ingredient;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
+import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
 import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
 import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureRepository;
 
@@ -25,14 +26,15 @@ public class IngredientServiceImpl implements IngredientService {
     @Override
     public IngredientCommand findByRecipeIdAndIngredientId(Long recipeId, Long ingredientId) {
         Recipe recipe = recipeRepository.findById(recipeId)
-                .orElseThrow(() -> new RuntimeException("Recipe Not Found for id: " + recipeId));
+                .orElseThrow(() -> new NotFoundException("Recipe Not Found for id: " + recipeId));
         return findRecipeIngredientCommand(IngredientCommand.builder().id(ingredientId).build(), recipe);
     }
 
     @Override
     public IngredientCommand saveIngredientCommand(IngredientCommand ingredientCommand) {
         Recipe recipe = recipeRepository.findById(ingredientCommand.getRecipeId())
-                .orElseThrow(() -> new RuntimeException("Recipe Not Found for id: " + ingredientCommand.getRecipeId()));
+                .orElseThrow(
+                        () -> new NotFoundException("Recipe Not Found for id: " + ingredientCommand.getRecipeId()));
 
         recipe.getIngredients()
                 .stream()
@@ -54,10 +56,10 @@ public class IngredientServiceImpl implements IngredientService {
     @Override
     public void deleteByRecipeIdAndIngredientId(Long recipeId, Long ingredientId) {
         Recipe recipe = recipeRepository.findById(recipeId)
-                .orElseThrow(() -> new RuntimeException("Recipe Not Found for id: " + recipeId));
+                .orElseThrow(() -> new NotFoundException("Recipe Not Found for id: " + recipeId));
 
         if (!recipe.getIngredients().removeIf(ingredient -> ingredient.getId().equals(ingredientId))) {
-            throw new RuntimeException("Ingredient Not Found for id: " + ingredientId);
+            throw new NotFoundException("Ingredient Not Found for id: " + ingredientId);
         }
 
         recipeRepository.save(recipe);
@@ -70,7 +72,7 @@ public class IngredientServiceImpl implements IngredientService {
                 .filter(ingredient -> isSameIngredient(ingredientCommand, ingredient))
                 .findFirst()
                 .map(ingredientToIngredientCommand::convert)
-                .orElseThrow(() -> new RuntimeException("Ingredient Not Found for id: " + ingredientCommand.getId()));
+                .orElseThrow(() -> new NotFoundException("Ingredient Not Found for id: " + ingredientCommand.getId()));
     }
 
     private boolean isSameIngredient(IngredientCommand ingredientCommand, Ingredient ingredient) {

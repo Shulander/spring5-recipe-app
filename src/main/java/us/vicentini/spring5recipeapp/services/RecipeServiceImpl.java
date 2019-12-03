@@ -7,6 +7,7 @@ import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.converters.RecipeCommandToRecipe;
 import us.vicentini.spring5recipeapp.converters.RecipeToRecipeCommand;
 import us.vicentini.spring5recipeapp.domain.Recipe;
+import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
 import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
 
 import java.util.Optional;
@@ -35,7 +36,7 @@ class RecipeServiceImpl implements RecipeService {
         Optional<Recipe> recipeOptional = recipeRepository.findById(id);
 
         return recipeOptional.orElseThrow(() -> {
-            throw new RuntimeException("Recipe Not Found for id: " + id);
+            throw new NotFoundException("Recipe Not Found for id: " + id);
         });
     }
 

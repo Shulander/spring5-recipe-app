@@ -16,6 +16,7 @@ import us.vicentini.spring5recipeapp.converters.UnitOfMeasureToUnitOfMeasureComm
 import us.vicentini.spring5recipeapp.domain.Ingredient;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
+import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
 import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
 import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureRepository;
 
@@ -87,8 +88,8 @@ class IngredientServiceImplTest {
         when(recipeRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         //then
-        RuntimeException ex =
-                assertThrows(RuntimeException.class, () -> ingredientService.findByRecipeIdAndIngredientId(1L, 3L));
+        NotFoundException ex =
+                assertThrows(NotFoundException.class, () -> ingredientService.findByRecipeIdAndIngredientId(1L, 3L));
 
         //when
         assertEquals("Recipe Not Found for id: 1", ex.getMessage());
@@ -106,16 +107,17 @@ class IngredientServiceImplTest {
         when(recipeRepository.findById(anyLong())).thenReturn(recipeOptional);
 
         //then
-        RuntimeException ex =
-                assertThrows(RuntimeException.class, () -> ingredientService.findByRecipeIdAndIngredientId(1L, 3L));
+        NotFoundException ex =
+                assertThrows(NotFoundException.class, () -> ingredientService.findByRecipeIdAndIngredientId(1L, 3L));
 
         //when
         assertEquals("Ingredient Not Found for id: 3", ex.getMessage());
         verify(recipeRepository).findById(anyLong());
     }
 
+
     @Test
-    void testUpdateRecipeCommand() throws Exception {
+    void testUpdateRecipeCommand() {
         //given
         IngredientCommand command = IngredientCommand.builder()
                 .id(3L)
@@ -155,8 +157,9 @@ class IngredientServiceImplTest {
 
     }
 
+
     @Test
-    void testSaveNewRecipeCommand() throws Exception {
+    void testSaveNewRecipeCommand() {
         //given
         IngredientCommand ingredientCommand = IngredientCommand.builder()
                 .recipeId(2L)

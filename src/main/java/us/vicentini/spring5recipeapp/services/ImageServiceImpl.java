@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import us.vicentini.spring5recipeapp.domain.Recipe;
+import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
 import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class ImageServiceImpl implements ImageService {
     public void saveImageFile(Long recipeId, MultipartFile multipartFile) {
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> {
-                    throw new RuntimeException("Recipe Not Found for id: " + recipeId);
+                    throw new NotFoundException("Recipe Not Found for id: " + recipeId);
                 });
         recipe.setImage(getImageBytes(multipartFile));
         recipeRepository.save(recipe);
@@ -35,7 +36,7 @@ public class ImageServiceImpl implements ImageService {
             Arrays.setAll(imageBytes, n -> originalFile[n]);
             return imageBytes;
         } catch (IOException e) {
-            throw new RuntimeException("Error getting bytes from image: " + multipartFile.getOriginalFilename(), e);
+            throw new NotFoundException("Error getting bytes from image: " + multipartFile.getOriginalFilename(), e);
         }
     }
 }

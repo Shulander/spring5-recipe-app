@@ -9,6 +9,7 @@ import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.converters.RecipeCommandToRecipe;
 import us.vicentini.spring5recipeapp.converters.RecipeToRecipeCommand;
 import us.vicentini.spring5recipeapp.domain.Recipe;
+import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
 import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
 
 import java.util.Collections;
@@ -19,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -41,6 +43,7 @@ class RecipeServiceImplTest {
         recipeService = new RecipeServiceImpl(recipeRepository, recipeCommandToRecipe, recipeToRecipeCommand);
     }
 
+
     @Test
     void getRecipesFindById() {
         Recipe recipe = mock(Recipe.class);
@@ -52,11 +55,25 @@ class RecipeServiceImplTest {
         verify(recipeRepository).findById(1L);
     }
 
+
+    @Test
+    public void getRecipeByIdTestNotFound() {
+        Optional<Recipe> recipeOptional = Optional.empty();
+        when(recipeRepository.findById(anyLong())).thenReturn(recipeOptional);
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> recipeService.findById(1L));
+
+        assertNotNull(exception);
+        assertEquals("Recipe Not Found for id: 1", exception.getMessage());
+        verify(recipeRepository).findById(1L);
+    }
+
+
     @Test
     void getRecipesFindByIdNotFound() {
         when(recipeRepository.findById(1L)).thenReturn(Optional.empty());
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> recipeService.findById(1L));
+        NotFoundException ex = assertThrows(NotFoundException.class, () -> recipeService.findById(1L));
 
         assertEquals("Recipe Not Found for id: 1", ex.getMessage());
         verify(recipeRepository).findById(1L);
@@ -91,7 +108,6 @@ class RecipeServiceImplTest {
 
     @Test
     void testDeleteById() {
-
         recipeService.deleteById(1L);
 
         verify(recipeRepository).deleteById(1L);

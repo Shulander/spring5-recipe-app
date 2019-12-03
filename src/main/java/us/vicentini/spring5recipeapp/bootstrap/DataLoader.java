@@ -10,6 +10,7 @@ import us.vicentini.spring5recipeapp.domain.Ingredient;
 import us.vicentini.spring5recipeapp.domain.Notes;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
+import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
 import us.vicentini.spring5recipeapp.repositories.CategoryRepository;
 import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
 import us.vicentini.spring5recipeapp.repositories.UnityOfMeasureRepository;
@@ -225,7 +226,7 @@ public class DataLoader implements CommandLineRunner {
         Optional<Category> americanCategoryOptional = categoryRepository.findByDescription(category);
 
         if (americanCategoryOptional.isEmpty()) {
-            throw new RuntimeException("Expected Category Not Found " + category + "'");
+            throw new NotFoundException("Expected Category Not Found " + category + "'");
         }
         return americanCategoryOptional.get();
     }
@@ -234,7 +235,7 @@ public class DataLoader implements CommandLineRunner {
         Optional<UnitOfMeasure> eachUomOptional = unitOfMeasureRepository.findByDescription(uom);
 
         if (eachUomOptional.isEmpty()) {
-            throw new RuntimeException("Expected UOM Not Found '" + uom + "'");
+            throw new NotFoundException("Expected UOM Not Found '" + uom + "'");
         }
         return eachUomOptional.get();
     }

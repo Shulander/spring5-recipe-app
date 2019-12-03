@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
+import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
 import us.vicentini.spring5recipeapp.services.RecipeService;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -36,8 +37,9 @@ class RecipeControllerTest {
 
     private MockMvc mockMvc;
 
+
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -51,6 +53,16 @@ class RecipeControllerTest {
                 .andExpect(view().name("recipe/show"))
                 .andExpect(model().attributeExists("recipe"));
     }
+
+
+    @Test
+    public void testGetRecipeNotFound() throws Exception {
+        when(recipeService.findCommandById(anyLong())).thenThrow(NotFoundException.class);
+
+        mockMvc.perform(get("/recipe/1/show"))
+                .andExpect(status().isNotFound());
+    }
+
 
     @Test
     void testNewRecipe() throws Exception {
