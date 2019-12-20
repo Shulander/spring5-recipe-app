@@ -38,14 +38,13 @@ jobs:
           key: v1-dependencies-{‌{ checksum "pom.xml" }}
 
       # run tests! and gen code coverage
-      #      - run: mvn integration-test cobertura:cobertura
-      - run: mvn verify
+      - run: mvn integration-test jacoco:report
 
       - store_test_results:
           path: target/surefire-reports
       - store_artifacts:
           path: target/spring5-recipe-app-0.0.1-SNAPSHOT.jar
 
-#      - run:
-#          name: Send to CodeCov
-#          command: bash <(curl -s https://codecov.io/bash)
+      - run:
+          name: Send to CodeCov
+          command: bash <(curl -s https://codecov.io/bash)
