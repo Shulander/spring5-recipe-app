@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CategoryTest {
-    private static final Long CATEGORY_ID = 1L;
+    private static final String CATEGORY_ID = "1";
     private static final String CATEGORY_DESCRIPTION = "Description";
 
     private Category category;

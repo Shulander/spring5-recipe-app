@@ -2,6 +2,7 @@ package us.vicentini.spring5recipeapp.controllers;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,7 +16,7 @@ import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
 import us.vicentini.spring5recipeapp.services.RecipeService;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -49,8 +50,8 @@ class RecipeControllerTest {
 
     @Test
     void testGetRecipe() throws Exception {
-        RecipeCommand recipe = RecipeCommand.builder().id(1L).build();
-        when(recipeService.findCommandById(anyLong())).thenReturn(recipe);
+        RecipeCommand recipe = RecipeCommand.builder().id("1").build();
+        when(recipeService.findCommandById(anyString())).thenReturn(recipe);
 
         mockMvc.perform(get("/recipe/1/show"))
                 .andExpect(status().isOk())
@@ -61,7 +62,7 @@ class RecipeControllerTest {
 
     @Test
     public void testGetRecipeNotFound() throws Exception {
-        when(recipeService.findCommandById(anyLong())).thenThrow(NotFoundException.class);
+        when(recipeService.findCommandById(anyString())).thenThrow(NotFoundException.class);
 
         mockMvc.perform(get("/recipe/1/show"))
                 .andExpect(status().isNotFound())
@@ -71,6 +72,7 @@ class RecipeControllerTest {
 
 
     @Test
+    @Disabled
     public void testGetRecipeFormatError() throws Exception {
         mockMvc.perform(get("/recipe/asdf/show"))
                 .andExpect(status().isBadRequest())
@@ -90,7 +92,7 @@ class RecipeControllerTest {
 
     @Test
     void testPersistNewRecipe() throws Exception {
-        Long recipeID = 3L;
+        String recipeID = "3";
         when(recipeService.saveRecipeCommand(any(RecipeCommand.class)))
                 .thenReturn(RecipeCommand.builder().id(recipeID).build());
 
@@ -114,7 +116,7 @@ class RecipeControllerTest {
     @Test
     public void testPostNewRecipeFormValidationFail() throws Exception {
         RecipeCommand command = new RecipeCommand();
-        command.setId(2L);
+        command.setId("2");
 
         mockMvc.perform(post("/recipe")
                                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -127,7 +129,7 @@ class RecipeControllerTest {
 
     @Test
     void testUpdateRecipeView() throws Exception {
-        when(recipeService.findCommandById(1L)).thenReturn(RecipeCommand.builder().id(1L).build());
+        when(recipeService.findCommandById("1")).thenReturn(RecipeCommand.builder().id("1").build());
 
         mockMvc.perform(get("/recipe/1/update"))
                 .andExpect(status().isOk())
@@ -142,7 +144,7 @@ class RecipeControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/index"));
 
-        verify(recipeService).deleteById(anyLong());
+        verify(recipeService).deleteById(anyString());
     }
 
 

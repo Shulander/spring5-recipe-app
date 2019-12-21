@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class UnitOfMeasureCommandToUnitOfMeasureTest {
 
     private static final String DESCRIPTION = "description";
-    private static final Long LONG_VALUE = 1L;
+    private static final String ID_VALUE = "1";
 
     private UnitOfMeasureCommandToUnitOfMeasure converter;
 
@@ -36,7 +36,7 @@ class UnitOfMeasureCommandToUnitOfMeasureTest {
     void convert() {
         //given
         UnitOfMeasureCommand command = new UnitOfMeasureCommand();
-        command.setId(LONG_VALUE);
+        command.setId(ID_VALUE);
         command.setDescription(DESCRIPTION);
 
         //when
@@ -44,7 +44,7 @@ class UnitOfMeasureCommandToUnitOfMeasureTest {
 
         //then
         assertNotNull(uom);
-        assertEquals(LONG_VALUE, uom.getId());
+        assertEquals(ID_VALUE, uom.getId());
         assertEquals(DESCRIPTION, uom.getDescription());
 
     }

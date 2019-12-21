@@ -26,7 +26,7 @@ public class IngredientToIngredientCommand implements Converter<Ingredient, Ingr
                 .build();
     }
 
-    private Long getRecipeId(Ingredient ingredient) {
+    private String getRecipeId(Ingredient ingredient) {
         return ingredient.getRecipe() == null ? null : ingredient.getRecipe().getId();
     }
 }

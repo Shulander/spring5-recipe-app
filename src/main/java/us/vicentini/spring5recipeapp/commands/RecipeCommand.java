@@ -23,7 +23,7 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor
 @AllArgsConstructor(access = PRIVATE)
 public class RecipeCommand {
-    private Long id;
+    private String id;
 
     @Min(1)
     @Max(999)

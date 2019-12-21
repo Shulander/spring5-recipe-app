@@ -20,7 +20,7 @@ public class ImageServiceImpl implements ImageService {
 
 
     @Override
-    public void saveImageFile(Long recipeId, MultipartFile multipartFile) {
+    public void saveImageFile(String recipeId, MultipartFile multipartFile) {
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> {
                     throw new NotFoundException("Recipe Not Found for id: " + recipeId);

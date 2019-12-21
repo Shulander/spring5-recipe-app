@@ -13,6 +13,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UnitOfMeasureCommand {
-    private Long id;
+    private String id;
     private String description;
 }

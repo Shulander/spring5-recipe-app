@@ -36,8 +36,8 @@ class UnitOfMeasureServiceImplTest {
     void listAllUoms() {
         //given
         Set<UnitOfMeasure> unitOfMeasures = new HashSet<>();
-        unitOfMeasures.add(UnitOfMeasure.builder().id(1L).build());
-        unitOfMeasures.add(UnitOfMeasure.builder().id(2L).build());
+        unitOfMeasures.add(UnitOfMeasure.builder().id("1").build());
+        unitOfMeasures.add(UnitOfMeasure.builder().id("2").build());
 
         when(unitOfMeasureRepository.findAll()).thenReturn(unitOfMeasures);
 

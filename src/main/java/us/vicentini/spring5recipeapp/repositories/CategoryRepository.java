@@ -5,7 +5,7 @@ import us.vicentini.spring5recipeapp.domain.Category;
 
 import java.util.Optional;
 
-public interface CategoryRepository extends CrudRepository<Category, Long> {
+public interface CategoryRepository extends CrudRepository<Category, String> {
 
     Optional<Category> findByDescription(String description);
 }

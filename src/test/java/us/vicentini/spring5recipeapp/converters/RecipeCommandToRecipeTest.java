@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RecipeCommandToRecipeTest {
-    private static final Long RECIPE_ID = 1L;
+    private static final String RECIPE_ID = "1";
     private static final Integer COOK_TIME = 5;
     private static final Integer PREP_TIME = 7;
     private static final String DESCRIPTION = "My Recipe";
@@ -26,11 +26,11 @@ class RecipeCommandToRecipeTest {
     private static final Integer SERVINGS = 3;
     private static final String SOURCE = "Source";
     private static final String URL = "Some URL";
-    private static final Long CAT_ID_1 = 1L;
-    private static final Long CAT_ID2 = 2L;
-    private static final Long INGRED_ID_1 = 3L;
-    private static final Long INGRED_ID_2 = 4L;
-    private static final Long NOTES_ID = 9L;
+    private static final String CAT_ID_1 = "1";
+    private static final String CAT_ID2 = "2";
+    private static final String INGRED_ID_1 = "3";
+    private static final String INGRED_ID_2 = "4";
+    private static final String NOTES_ID = "9L";
 
     private RecipeCommandToRecipe converter;
 

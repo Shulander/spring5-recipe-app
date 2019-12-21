@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class NotesCommandToNotesTest {
 
-    private static final Long ID_VALUE = 1L;
+    private static final String ID_VALUE = "1";
     private static final String RECIPE_NOTES = "Notes";
     private NotesCommandToNotes converter;
 

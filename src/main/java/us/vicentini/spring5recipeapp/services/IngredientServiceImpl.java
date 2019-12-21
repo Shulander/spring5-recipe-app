@@ -24,7 +24,7 @@ public class IngredientServiceImpl implements IngredientService {
     private final UnitOfMeasureRepository unitOfMeasureRepository;
 
     @Override
-    public IngredientCommand findByRecipeIdAndIngredientId(Long recipeId, Long ingredientId) {
+    public IngredientCommand findByRecipeIdAndIngredientId(String recipeId, String ingredientId) {
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new NotFoundException("Recipe Not Found for id: " + recipeId));
         return findRecipeIngredientCommand(IngredientCommand.builder().id(ingredientId).build(), recipe);
@@ -54,7 +54,7 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
-    public void deleteByRecipeIdAndIngredientId(Long recipeId, Long ingredientId) {
+    public void deleteByRecipeIdAndIngredientId(String recipeId, String ingredientId) {
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new NotFoundException("Recipe Not Found for id: " + recipeId));
 

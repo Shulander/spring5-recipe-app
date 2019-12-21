@@ -14,6 +14,6 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor
 @AllArgsConstructor(access = PRIVATE)
 public class NotesCommand {
-    private Long id;
+    private String id;
     private String recipeNotes;
 }

@@ -43,7 +43,7 @@ class IndexControllerTest {
 
     @Test
     void getIndexPageWithArgumentCaptor() {
-        Set<Recipe> recipes = Set.of(Recipe.builder().id(1L).build(), Recipe.builder().id(2L).build());
+        Set<Recipe> recipes = Set.of(Recipe.builder().id("1").build(), Recipe.builder().id("2").build());
         when(recipeService.getRecipes()).thenReturn(recipes);
         ArgumentCaptor<Set<Recipe>> argumentCaptor = ArgumentCaptor.forClass(Set.class);
 
