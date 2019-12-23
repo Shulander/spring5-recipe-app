@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class IngredientCommand {
     private String id;
-    //todo: remove this property
     private String recipeId;
     private BigDecimal amount;
     private String description;

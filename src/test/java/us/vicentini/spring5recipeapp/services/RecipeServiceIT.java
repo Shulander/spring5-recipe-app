@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.converters.RecipeCommandToRecipe;
 import us.vicentini.spring5recipeapp.converters.RecipeToRecipeCommand;
@@ -19,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@Disabled
 public class RecipeServiceIT {
 
     private static final String NEW_DESCRIPTION = "New Description";
@@ -36,9 +34,7 @@ public class RecipeServiceIT {
     @Autowired
     RecipeToRecipeCommand recipeToRecipeCommand;
 
-    @Transactional
     @Test
-    @Disabled
     void testSaveOfDescription() {
         //given
         Iterable<Recipe> recipes = recipeRepository.findAll();
@@ -56,7 +52,6 @@ public class RecipeServiceIT {
         assertEquals(testRecipe.getIngredients().size(), savedRecipeCommand.getIngredients().size());
     }
 
-    @Transactional
     @Test
     @Disabled
     void testFindCommandById() {

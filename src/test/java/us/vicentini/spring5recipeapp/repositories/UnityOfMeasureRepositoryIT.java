@@ -1,12 +1,12 @@
 package us.vicentini.spring5recipeapp.repositories;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import us.vicentini.spring5recipeapp.bootstrap.BootStrapBaseData;
 import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
 
 import java.util.Optional;
@@ -15,20 +15,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
-@DataJpaTest
+@DataMongoTest
+@Import(BootStrapBaseData.class)
 class UnityOfMeasureRepositoryIT {
 
     @Autowired
     private UnityOfMeasureRepository unityOfMeasureRepository;
 
-    @BeforeEach
-    void setUp() {
-
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
 
     @Test
     void findByDescriptionTeaspoon() {
@@ -38,6 +31,7 @@ class UnityOfMeasureRepositoryIT {
         assertTrue(unitOfMeasure.isPresent());
         assertEquals("Teaspoon", unitOfMeasure.get().getDescription());
     }
+
 
     @Test
     void findByDescriptionCup() {

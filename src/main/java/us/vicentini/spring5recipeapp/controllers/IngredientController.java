@@ -14,6 +14,8 @@ import us.vicentini.spring5recipeapp.services.IngredientService;
 import us.vicentini.spring5recipeapp.services.RecipeService;
 import us.vicentini.spring5recipeapp.services.UnitOfMeasureService;
 
+import java.util.UUID;
+
 @Slf4j
 @Controller
 @RequiredArgsConstructor
@@ -63,6 +65,7 @@ public class IngredientController {
         //todo raise exception if null
 
         IngredientCommand ingredient = IngredientCommand.builder()
+                .id(UUID.randomUUID().toString())
                 .recipeId(recipeCommand.getId())
                 .build();
         model.addAttribute("ingredient", ingredient);

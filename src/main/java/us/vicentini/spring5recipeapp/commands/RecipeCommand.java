@@ -12,8 +12,8 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.Collection;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -51,7 +51,7 @@ public class RecipeCommand {
     private NotesCommand notes;
     private Byte[] image;
     @Builder.Default
-    private Collection<CategoryCommand> categories = new LinkedList<>();
+    private List<CategoryCommand> categories = new ArrayList<>();
     @Builder.Default
-    private Collection<IngredientCommand> ingredients = new LinkedList<>();
+    private List<IngredientCommand> ingredients = new ArrayList<>();
 }

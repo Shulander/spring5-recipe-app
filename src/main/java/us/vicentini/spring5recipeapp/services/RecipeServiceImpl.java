@@ -50,7 +50,12 @@ class RecipeServiceImpl implements RecipeService {
 
     @Override
     public RecipeCommand findCommandById(String id) {
-        return recipeToRecipeCommand.convert(findById(id));
+        RecipeCommand recipe = recipeToRecipeCommand.convert(findById(id));
+
+        recipe.getIngredients()
+                .forEach(ingredient -> ingredient.setRecipeId(recipe.getId()));
+
+        return recipe;
     }
 
     @Override

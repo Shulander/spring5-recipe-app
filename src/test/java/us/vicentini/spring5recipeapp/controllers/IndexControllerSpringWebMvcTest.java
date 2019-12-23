@@ -1,7 +1,6 @@
 package us.vicentini.spring5recipeapp.controllers;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(IndexController.class)
-@Disabled
 class IndexControllerSpringWebMvcTest {
 
     @MockBean
@@ -30,7 +28,6 @@ class IndexControllerSpringWebMvcTest {
     private MockMvc mockMvc;
 
     @Test
-    @Disabled
     void getIndexPageMockMvc() throws Exception {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())

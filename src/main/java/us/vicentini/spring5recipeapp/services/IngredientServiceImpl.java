@@ -13,6 +13,7 @@ import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
 import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureRepository;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +39,12 @@ public class IngredientServiceImpl implements IngredientService {
 
         recipe.getIngredients()
                 .stream()
-                .filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
+                .filter(new Predicate<Ingredient>() {
+                    @Override
+                    public boolean test(Ingredient ingredient) {
+                        return ingredient.getId().equals(ingredientCommand.getId());
+                    }
+                })
                 .findFirst()
                 .ifPresentOrElse(ingredient -> {
                     ingredient.setAmount(ingredientCommand.getAmount());
@@ -72,6 +78,10 @@ public class IngredientServiceImpl implements IngredientService {
                 .filter(ingredient -> isSameIngredient(ingredientCommand, ingredient))
                 .findFirst()
                 .map(ingredientToIngredientCommand::convert)
+                .map(ingredient -> {
+                   ingredient.setRecipeId(recipe.getId());
+                   return ingredient;
+                })
                 .orElseThrow(() -> new NotFoundException("Ingredient Not Found for id: " + ingredientCommand.getId()));
     }
 
