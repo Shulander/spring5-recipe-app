@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
 
@@ -16,8 +19,12 @@ import java.util.Set;
 @ToString(exclude = "recipes")
 @EqualsAndHashCode(exclude = "recipes")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Document
 public class Category {
+
+    @Id
     private String id;
     private String description;
+    @DBRef
     private Set<Recipe> recipes;
 }

@@ -6,17 +6,18 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.annotation.Id;
 
 import static lombok.AccessLevel.PRIVATE;
 
 @Data
-@EqualsAndHashCode(exclude = {"recipe"})
-@ToString(exclude = "recipe")
+@EqualsAndHashCode()
+@ToString()
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor(access = PRIVATE)
 public class Notes {
+    @Id
     private String id;
-    private Recipe recipe;
     private String recipeNotes;
 }

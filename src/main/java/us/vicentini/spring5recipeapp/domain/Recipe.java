@@ -7,6 +7,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,9 +20,10 @@ import java.util.Set;
 @ToString(exclude = {"ingredients", "categories"})
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@Document
 public class Recipe {
+    @Id
     private String id;
-
     private String description;
     private Integer prepTime;
     private Integer cookTime;
@@ -30,21 +34,21 @@ public class Recipe {
     private Difficulty difficulty;
     private Byte[] image;
     private Notes notes;
+//    @DBRef
     @Builder.Default
     private Set<Ingredient> ingredients = new HashSet<>();
+    @DBRef
     @Builder.Default
     private Set<Category> categories = new HashSet<>();
 
     public void setNotes(Notes notes) {
         if (notes != null) {
-            notes.setRecipe(this);
             this.notes = notes;
         }
     }
 
     public void addIngredient(Ingredient ingredient) {
         if (ingredient != null) {
-            ingredient.setRecipe(this);
             ingredients.add(ingredient);
         }
     }
