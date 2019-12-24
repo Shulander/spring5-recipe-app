@@ -13,7 +13,7 @@ import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
 import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
 import us.vicentini.spring5recipeapp.repositories.CategoryRepository;
 import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
-import us.vicentini.spring5recipeapp.repositories.UnityOfMeasureRepository;
+import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureRepository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ import java.util.Optional;
 public class DataLoader implements CommandLineRunner {
 
     private final CategoryRepository categoryRepository;
-    private final UnityOfMeasureRepository unitOfMeasureRepository;
+    private final UnitOfMeasureRepository unitOfMeasureRepository;
     private final RecipeRepository recipeRepository;
 
     @Override
