@@ -13,7 +13,7 @@ import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
 import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
 import us.vicentini.spring5recipeapp.repositories.CategoryRepository;
 import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
-import us.vicentini.spring5recipeapp.repositories.UnityOfMeasureRepository;
+import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureRepository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -26,8 +26,9 @@ import java.util.Optional;
 public class DataLoader implements CommandLineRunner {
 
     private final CategoryRepository categoryRepository;
-    private final UnityOfMeasureRepository unitOfMeasureRepository;
+    private final UnitOfMeasureRepository unitOfMeasureRepository;
     private final RecipeRepository recipeRepository;
+
 
     @Override
     public void run(String... args) {
@@ -35,6 +36,7 @@ public class DataLoader implements CommandLineRunner {
         recipeRepository.saveAll(loadData());
         log.info("Data loader finished!");
     }
+
 
     private List<Recipe> loadData() {
         List<Recipe> recipes = new ArrayList<>(2);
@@ -50,6 +52,7 @@ public class DataLoader implements CommandLineRunner {
 
         return recipes;
     }
+
 
     private Recipe getTacosRecipe() {
 
@@ -143,6 +146,7 @@ public class DataLoader implements CommandLineRunner {
         return tacosRecipe;
     }
 
+
     private Recipe getGuacamoleRecipe() {
         //get UOMs
         UnitOfMeasure eachUom = getUnitOfMeasure("Each");
@@ -218,6 +222,7 @@ public class DataLoader implements CommandLineRunner {
         return guacRecipe;
     }
 
+
     private Category getCategory(String category) {
         Optional<Category> americanCategoryOptional = categoryRepository.findByDescription(category);
 
@@ -227,6 +232,7 @@ public class DataLoader implements CommandLineRunner {
         return americanCategoryOptional.get();
     }
 
+
     private UnitOfMeasure getUnitOfMeasure(String uom) {
         Optional<UnitOfMeasure> eachUomOptional = unitOfMeasureRepository.findByDescription(uom);
 
@@ -235,6 +241,7 @@ public class DataLoader implements CommandLineRunner {
         }
         return eachUomOptional.get();
     }
+
 
     private Ingredient createIngredient(String description, BigDecimal amount,
                                         UnitOfMeasure unitOfMeasure) {

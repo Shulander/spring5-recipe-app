@@ -17,16 +17,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(SpringExtension.class)
 @DataMongoTest
 @Import(BootStrapBaseData.class)
-class UnityOfMeasureRepositoryIT {
+class UnitOfMeasureRepositoryIT {
 
     @Autowired
-    private UnityOfMeasureRepository unityOfMeasureRepository;
+    private UnitOfMeasureRepository unitOfMeasureRepository;
 
 
     @Test
     void findByDescriptionTeaspoon() {
 
-        Optional<UnitOfMeasure> unitOfMeasure = unityOfMeasureRepository.findByDescription("Teaspoon");
+        Optional<UnitOfMeasure> unitOfMeasure = unitOfMeasureRepository.findByDescription("Teaspoon");
 
         assertTrue(unitOfMeasure.isPresent());
         assertEquals("Teaspoon", unitOfMeasure.get().getDescription());
@@ -36,7 +36,7 @@ class UnityOfMeasureRepositoryIT {
     @Test
     void findByDescriptionCup() {
 
-        Optional<UnitOfMeasure> unitOfMeasure = unityOfMeasureRepository.findByDescription("Cup");
+        Optional<UnitOfMeasure> unitOfMeasure = unitOfMeasureRepository.findByDescription("Cup");
 
         assertTrue(unitOfMeasure.isPresent());
         assertEquals("Cup", unitOfMeasure.get().getDescription());
