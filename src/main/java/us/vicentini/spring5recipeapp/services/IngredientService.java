@@ -1,12 +1,13 @@
 package us.vicentini.spring5recipeapp.services;
 
+import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.commands.IngredientCommand;
 
 public interface IngredientService {
 
-    IngredientCommand findByRecipeIdAndIngredientId(String recipeId, String ingredientId);
+    Mono<IngredientCommand> findByRecipeIdAndIngredientId(String recipeId, String ingredientId);
 
-    IngredientCommand saveIngredientCommand(IngredientCommand ingredientCommand);
+    Mono<IngredientCommand> saveIngredientCommand(IngredientCommand ingredientCommand);
 
-    void deleteByRecipeIdAndIngredientId(String recipeId, String ingredientId);
+    Mono<Void> deleteByRecipeIdAndIngredientId(String recipeId, String ingredientId);
 }

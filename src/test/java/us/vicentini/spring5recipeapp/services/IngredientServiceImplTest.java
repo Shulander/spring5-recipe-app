@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.commands.IngredientCommand;
 import us.vicentini.spring5recipeapp.commands.UnitOfMeasureCommand;
 import us.vicentini.spring5recipeapp.converters.IngredientCommandToIngredient;
@@ -17,8 +18,8 @@ import us.vicentini.spring5recipeapp.domain.Ingredient;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
 import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
-import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
-import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureRepository;
+import us.vicentini.spring5recipeapp.repositories.reactive.RecipeReactiveRepository;
+import us.vicentini.spring5recipeapp.repositories.reactive.UnitOfMeasureReactiveRepository;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -42,9 +43,9 @@ class IngredientServiceImplTest {
     private final IngredientCommandToIngredient ingredientCommandToIngredient;
 
     @Mock
-    private RecipeRepository recipeRepository;
+    private RecipeReactiveRepository recipeRepository;
     @Mock
-    private UnitOfMeasureRepository unitOfMeasureRepository;
+    private UnitOfMeasureReactiveRepository unitOfMeasureRepository;
 
     private IngredientServiceImpl ingredientService;
 
@@ -71,11 +72,10 @@ class IngredientServiceImplTest {
         recipe.addIngredient(Ingredient.builder().id("2").build());
         recipe.addIngredient(Ingredient.builder().id("3").build());
 
-        Optional<Recipe> recipeOptional = Optional.of(recipe);
-        when(recipeRepository.findById(anyString())).thenReturn(recipeOptional);
+        when(recipeRepository.findById(anyString())).thenReturn(Mono.just(recipe));
 
         //then
-        IngredientCommand ingredientCommand = ingredientService.findByRecipeIdAndIngredientId(ENTITY_ID, "3");
+        IngredientCommand ingredientCommand = ingredientService.findByRecipeIdAndIngredientId(ENTITY_ID, "3").block();
 
         //when
         assertEquals("3", ingredientCommand.getId());
@@ -85,11 +85,12 @@ class IngredientServiceImplTest {
     @Test
     void findByRecipeIdAndRecipeIdFailRecipeNotfound() {
         //given
-        when(recipeRepository.findById(anyString())).thenReturn(Optional.empty());
+        when(recipeRepository.findById(anyString())).thenReturn(Mono.empty());
 
         //then
         NotFoundException ex =
-                assertThrows(NotFoundException.class, () -> ingredientService.findByRecipeIdAndIngredientId(ENTITY_ID, "3"));
+                assertThrows(NotFoundException.class, () -> ingredientService.findByRecipeIdAndIngredientId(ENTITY_ID
+                        , "3").block());
 
         //when
         assertEquals("Recipe Not Found for id: 1", ex.getMessage());
@@ -103,12 +104,12 @@ class IngredientServiceImplTest {
         recipe.addIngredient(Ingredient.builder().id(ENTITY_ID).build());
         recipe.addIngredient(Ingredient.builder().id("2").build());
 
-        Optional<Recipe> recipeOptional = Optional.of(recipe);
-        when(recipeRepository.findById(anyString())).thenReturn(recipeOptional);
+        when(recipeRepository.findById(anyString())).thenReturn(Mono.just(recipe));
 
         //then
         NotFoundException ex =
-                assertThrows(NotFoundException.class, () -> ingredientService.findByRecipeIdAndIngredientId(ENTITY_ID, "3"));
+                assertThrows(NotFoundException.class, () -> ingredientService.findByRecipeIdAndIngredientId(ENTITY_ID
+                        , "3").block());
 
         //when
         assertEquals("Ingredient Not Found for id: 3", ex.getMessage());
@@ -142,12 +143,12 @@ class IngredientServiceImplTest {
         savedRecipe.addIngredient(Ingredient.builder().id("3").build());
 
         UnitOfMeasure uom = UnitOfMeasure.builder().id(ENTITY_ID).description("uom").build();
-        when(recipeRepository.findById(anyString())).thenReturn(recipeOptional);
-        when(recipeRepository.save(any(Recipe.class))).thenReturn(savedRecipe);
-        when(unitOfMeasureRepository.findById(ENTITY_ID)).thenReturn(Optional.of(uom));
+        when(recipeRepository.findById(anyString())).thenReturn(Mono.just(recipe));
+        when(recipeRepository.save(any(Recipe.class))).thenReturn(Mono.just(savedRecipe));
+        when(unitOfMeasureRepository.findById(ENTITY_ID)).thenReturn(Mono.just(uom));
 
         //when
-        IngredientCommand savedCommand = ingredientService.saveIngredientCommand(command);
+        IngredientCommand savedCommand = ingredientService.saveIngredientCommand(command).block();
 
         //then
         assertEquals("3", savedCommand.getId());
@@ -169,7 +170,8 @@ class IngredientServiceImplTest {
                                        .id(ENTITY_ID)
                                        .build())
                 .build();
-        Optional<Recipe> recipeOptional = Optional.of(Recipe.builder().id("2").build());
+        Recipe recipe = Recipe.builder().id("2").build();
+        Mono<Recipe> recipeOptional = Mono.just(recipe);
 
         Recipe savedRecipe = Recipe.builder().id("2").build();
         Ingredient ingredient = Ingredient.builder()
@@ -184,10 +186,10 @@ class IngredientServiceImplTest {
         savedRecipe.addIngredient(ingredient);
 
         when(recipeRepository.findById("2")).thenReturn(recipeOptional);
-        when(recipeRepository.save(recipeOptional.get())).thenReturn(savedRecipe);
+        when(recipeRepository.save(recipe)).thenReturn(Mono.just(savedRecipe));
 
         //when
-        IngredientCommand savedCommand = ingredientService.saveIngredientCommand(ingredientCommand);
+        IngredientCommand savedCommand = ingredientService.saveIngredientCommand(ingredientCommand).block();
 
         //then
         assertEquals("3", savedCommand.getId());
@@ -206,10 +208,11 @@ class IngredientServiceImplTest {
         recipe.addIngredient(Ingredient.builder().id(ENTITY_ID).build());
         recipe.addIngredient(Ingredient.builder().id("2").build());
         recipe.addIngredient(Ingredient.builder().id("3").build());
-        when(recipeRepository.findById(ENTITY_ID)).thenReturn(Optional.of(recipe));
+        when(recipeRepository.findById(ENTITY_ID)).thenReturn(Mono.just(recipe));
+        when(recipeRepository.save(recipe)).thenReturn(Mono.just(recipe));
 
         //when
-        ingredientService.deleteByRecipeIdAndIngredientId(ENTITY_ID, "2");
+        ingredientService.deleteByRecipeIdAndIngredientId(ENTITY_ID, "2").block();
 
         //then
         verify(recipeRepository).findById(ENTITY_ID);

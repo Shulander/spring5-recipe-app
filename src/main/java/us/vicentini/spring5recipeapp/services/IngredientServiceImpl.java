@@ -2,6 +2,7 @@ package us.vicentini.spring5recipeapp.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.commands.IngredientCommand;
 import us.vicentini.spring5recipeapp.converters.IngredientCommandToIngredient;
 import us.vicentini.spring5recipeapp.converters.IngredientToIngredientCommand;
@@ -9,11 +10,10 @@ import us.vicentini.spring5recipeapp.domain.Ingredient;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
 import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
-import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
-import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureRepository;
+import us.vicentini.spring5recipeapp.repositories.reactive.RecipeReactiveRepository;
+import us.vicentini.spring5recipeapp.repositories.reactive.UnitOfMeasureReactiveRepository;
 
 import java.util.Objects;
-import java.util.function.Predicate;
 
 @Service
 @RequiredArgsConstructor
@@ -21,55 +21,66 @@ public class IngredientServiceImpl implements IngredientService {
 
     private final IngredientToIngredientCommand ingredientToIngredientCommand;
     private final IngredientCommandToIngredient ingredientCommandToIngredient;
-    private final RecipeRepository recipeRepository;
-    private final UnitOfMeasureRepository unitOfMeasureRepository;
+    private final RecipeReactiveRepository recipeRepository;
+    private final UnitOfMeasureReactiveRepository unitOfMeasureRepository;
+
 
     @Override
-    public IngredientCommand findByRecipeIdAndIngredientId(String recipeId, String ingredientId) {
-        Recipe recipe = recipeRepository.findById(recipeId)
-                .orElseThrow(() -> new NotFoundException("Recipe Not Found for id: " + recipeId));
-        return findRecipeIngredientCommand(IngredientCommand.builder().id(ingredientId).build(), recipe);
+    public Mono<IngredientCommand> findByRecipeIdAndIngredientId(String recipeId, String ingredientId) {
+        return recipeRepository.findById(recipeId)
+                .switchIfEmpty(Mono.error(new NotFoundException("Recipe Not Found for id: " + recipeId)))
+                .map(recipe -> IngredientServiceImpl.this
+                        .findRecipeIngredientCommand(IngredientCommand.builder().id(ingredientId).build(),
+                                                     recipe));
     }
 
-    @Override
-    public IngredientCommand saveIngredientCommand(IngredientCommand ingredientCommand) {
-        Recipe recipe = recipeRepository.findById(ingredientCommand.getRecipeId())
-                .orElseThrow(
-                        () -> new NotFoundException("Recipe Not Found for id: " + ingredientCommand.getRecipeId()));
 
+    @Override
+    public Mono<IngredientCommand> saveIngredientCommand(IngredientCommand ingredientCommand) {
+        return recipeRepository.findById(ingredientCommand.getRecipeId())
+                .switchIfEmpty(Mono.error(
+                        new NotFoundException("Recipe Not Found for id: " + ingredientCommand.getRecipeId())))
+                .map(recipe -> createOrUpdateIngredient(recipe, ingredientCommand))
+                .map(recipeRepository::save)
+                .map(Mono::block)
+                .map(savedRecipe -> findRecipeIngredientCommand(ingredientCommand, savedRecipe));
+    }
+
+
+    private Recipe createOrUpdateIngredient(Recipe recipe, IngredientCommand ingredientCommand) {
         recipe.getIngredients()
                 .stream()
-                .filter(new Predicate<Ingredient>() {
-                    @Override
-                    public boolean test(Ingredient ingredient) {
-                        return ingredient.getId().equals(ingredientCommand.getId());
-                    }
-                })
+                .filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
                 .findFirst()
                 .ifPresentOrElse(ingredient -> {
                     ingredient.setAmount(ingredientCommand.getAmount());
                     ingredient.setDescription(ingredientCommand.getDescription());
-                    ingredient.setUnitOfMeasure(getById(ingredientCommand));
+                    ingredient.setUnitOfMeasure(IngredientServiceImpl.this.getById(ingredientCommand));
                 }, () -> {
                     Ingredient convert = ingredientCommandToIngredient.convert(ingredientCommand);
                     recipe.addIngredient(convert);
                 });
-
-        Recipe savedRecipe = recipeRepository.save(recipe);
-        return findRecipeIngredientCommand(ingredientCommand, savedRecipe);
+        return recipe;
     }
 
-    @Override
-    public void deleteByRecipeIdAndIngredientId(String recipeId, String ingredientId) {
-        Recipe recipe = recipeRepository.findById(recipeId)
-                .orElseThrow(() -> new NotFoundException("Recipe Not Found for id: " + recipeId));
 
+    @Override
+    public Mono<Void> deleteByRecipeIdAndIngredientId(String recipeId, String ingredientId) {
+        return recipeRepository.findById(recipeId)
+                .switchIfEmpty(Mono.error(new NotFoundException("Recipe Not Found for id: " + recipeId)))
+                .map(recipe -> findAndRemoveIngredientFromRecipe(recipe, ingredientId))
+                .flatMap(recipeRepository::save)
+                .flatMap(recipe -> Mono.empty());
+    }
+
+
+    private Recipe findAndRemoveIngredientFromRecipe(Recipe recipe, String ingredientId) {
         if (!recipe.getIngredients().removeIf(ingredient -> ingredient.getId().equals(ingredientId))) {
             throw new NotFoundException("Ingredient Not Found for id: " + ingredientId);
         }
-
-        recipeRepository.save(recipe);
+        return recipe;
     }
+
 
     private IngredientCommand findRecipeIngredientCommand(IngredientCommand ingredientCommand, Recipe recipe) {
         return recipe
@@ -79,11 +90,12 @@ public class IngredientServiceImpl implements IngredientService {
                 .findFirst()
                 .map(ingredientToIngredientCommand::convert)
                 .map(ingredient -> {
-                   ingredient.setRecipeId(recipe.getId());
-                   return ingredient;
+                    ingredient.setRecipeId(recipe.getId());
+                    return ingredient;
                 })
                 .orElseThrow(() -> new NotFoundException("Ingredient Not Found for id: " + ingredientCommand.getId()));
     }
+
 
     private boolean isSameIngredient(IngredientCommand ingredientCommand, Ingredient ingredient) {
         if (ingredientCommand.getId() != null) {
@@ -96,11 +108,11 @@ public class IngredientServiceImpl implements IngredientService {
         }
     }
 
+
     private UnitOfMeasure getById(IngredientCommand ingredientCommand) {
         if (ingredientCommand.getUnitOfMeasure() == null) {
             return null;
         }
-        return unitOfMeasureRepository.findById(ingredientCommand.getUnitOfMeasure().getId())
-                .orElseThrow();
+        return unitOfMeasureRepository.findById(ingredientCommand.getUnitOfMeasure().getId()).block();
     }
 }

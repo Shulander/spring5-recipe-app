@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.commands.IngredientCommand;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.services.IngredientService;
@@ -74,7 +75,7 @@ class IngredientControllerTest {
     @Test
     void testShowIngredient() throws Exception {
         //given
-        IngredientCommand ingredientCommand = new IngredientCommand();
+        Mono<IngredientCommand> ingredientCommand = Mono.just(new IngredientCommand());
 
         //when
         when(ingredientService.findByRecipeIdAndIngredientId(anyString(), anyString())).thenReturn(ingredientCommand);
@@ -89,7 +90,7 @@ class IngredientControllerTest {
     @Test
     void testUpdateIngredientForm() throws Exception {
         //given
-        IngredientCommand ingredientCommand = new IngredientCommand();
+        Mono<IngredientCommand> ingredientCommand = Mono.just(new IngredientCommand());
 
         //when
         when(ingredientService.findByRecipeIdAndIngredientId(anyString(), anyString())).thenReturn(ingredientCommand);
@@ -106,13 +107,13 @@ class IngredientControllerTest {
     @Test
     void testSaveOrUpdate() throws Exception {
         //given
-        IngredientCommand command = IngredientCommand.builder()
-                .id("3")
-                .recipeId("2")
-                .build();
+        Mono<IngredientCommand> ingredientCommand = Mono.just(IngredientCommand.builder()
+                                                                      .id("3")
+                                                                      .recipeId("2")
+                                                                      .build());
 
         //when
-        when(ingredientService.saveIngredientCommand(any())).thenReturn(command);
+        when(ingredientService.saveIngredientCommand(any())).thenReturn(ingredientCommand);
 
         //then
         mockMvc.perform(post("/recipe/2/ingredient")
@@ -148,6 +149,8 @@ class IngredientControllerTest {
     @Test
     void deleteIngredient() throws Exception {
         //given
+        when(ingredientService.deleteByRecipeIdAndIngredientId("1", "2")).thenReturn(Mono.empty());
+
         //when
         mockMvc.perform(get("/recipe/1/ingredient/2/delete"))
                 .andExpect(status().is3xxRedirection())
