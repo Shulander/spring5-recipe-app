@@ -10,10 +10,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import us.vicentini.spring5recipeapp.commands.IngredientCommand;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
+import us.vicentini.spring5recipeapp.commands.UnitOfMeasureCommand;
 import us.vicentini.spring5recipeapp.services.IngredientService;
 import us.vicentini.spring5recipeapp.services.RecipeService;
 import us.vicentini.spring5recipeapp.services.UnitOfMeasureService;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -45,9 +48,18 @@ public class IngredientController {
     public String updateRecipeIngredient(@PathVariable String recipeId, @PathVariable String ingredientId, Model model) {
         IngredientCommand ingredient = ingredientService.findByRecipeIdAndIngredientId(recipeId, ingredientId);
         model.addAttribute("ingredient", ingredient);
-        model.addAttribute("uomList", unitOfMeasureService.listAllUoms());
+        model.addAttribute("uomList", getSortedListOfUnitOfMeasure());
         return "recipe/ingredient/ingredientform";
     }
+
+
+    private List<UnitOfMeasureCommand> getSortedListOfUnitOfMeasure() {
+        return unitOfMeasureService.listAllUoms()
+                .sort((o1, o2) -> Objects.compare(o1.getDescription(), o2.getDescription(), String::compareTo))
+                .collectList()
+                .block();
+    }
+
 
     @PostMapping("/recipe/{recipeId}/ingredient")
     public String saveOrUpdate(@ModelAttribute IngredientCommand command) {
@@ -69,7 +81,7 @@ public class IngredientController {
                 .recipeId(recipeCommand.getId())
                 .build();
         model.addAttribute("ingredient", ingredient);
-        model.addAttribute("uomList", unitOfMeasureService.listAllUoms());
+        model.addAttribute("uomList", getSortedListOfUnitOfMeasure());
 
         return "recipe/ingredient/ingredientform";
     }

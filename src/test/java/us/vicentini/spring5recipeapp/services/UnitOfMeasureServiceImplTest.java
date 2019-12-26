@@ -4,13 +4,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import reactor.core.publisher.Flux;
 import us.vicentini.spring5recipeapp.commands.UnitOfMeasureCommand;
 import us.vicentini.spring5recipeapp.converters.UnitOfMeasureToUnitOfMeasureCommand;
 import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
-import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureRepository;
+import us.vicentini.spring5recipeapp.repositories.reactive.UnitOfMeasureReactiveRepository;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -23,7 +23,7 @@ class UnitOfMeasureServiceImplTest {
     private UnitOfMeasureService service;
 
     @Mock
-    UnitOfMeasureRepository unitOfMeasureRepository;
+    UnitOfMeasureReactiveRepository unitOfMeasureRepository;
 
     @BeforeEach
     void setUp() {
@@ -35,14 +35,13 @@ class UnitOfMeasureServiceImplTest {
     @Test
     void listAllUoms() {
         //given
-        Set<UnitOfMeasure> unitOfMeasures = new HashSet<>();
-        unitOfMeasures.add(UnitOfMeasure.builder().id("1").build());
-        unitOfMeasures.add(UnitOfMeasure.builder().id("2").build());
+        UnitOfMeasure ufm1 = UnitOfMeasure.builder().id("1").build();
+        UnitOfMeasure ufm2 = UnitOfMeasure.builder().id("2").build();
 
-        when(unitOfMeasureRepository.findAll()).thenReturn(unitOfMeasures);
+        when(unitOfMeasureRepository.findAll()).thenReturn(Flux.just(ufm1, ufm2));
 
         //when
-        Set<UnitOfMeasureCommand> commands = service.listAllUoms();
+        List<UnitOfMeasureCommand> commands = service.listAllUoms().collectList().block();
 
         //then
         assertEquals(2, commands.size());
