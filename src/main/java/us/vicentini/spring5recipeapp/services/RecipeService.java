@@ -1,18 +1,18 @@
 package us.vicentini.spring5recipeapp.services;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 
-import java.util.Set;
-
 public interface RecipeService {
-    Set<Recipe> getRecipes();
+    Flux<Recipe> getRecipes();
 
-    Recipe findById(String id);
+    Mono<Recipe> findById(String id);
 
-    RecipeCommand saveRecipeCommand(RecipeCommand testRecipeCommand);
+    Mono<RecipeCommand> saveRecipeCommand(RecipeCommand testRecipeCommand);
 
-    RecipeCommand findCommandById(String id);
+    Mono<RecipeCommand> findCommandById(String id);
 
-    void deleteById(String id);
+    Mono<Void> deleteById(String id);
 }

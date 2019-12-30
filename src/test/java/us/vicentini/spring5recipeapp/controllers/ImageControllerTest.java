@@ -13,6 +13,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.services.ImageService;
 import us.vicentini.spring5recipeapp.services.RecipeService;
@@ -62,7 +63,7 @@ class ImageControllerTest {
         RecipeCommand command = new RecipeCommand();
         command.setId("1");
 
-        when(recipeService.findCommandById(anyString())).thenReturn(command);
+        when(recipeService.findCommandById(anyString())).thenReturn(Mono.just(command));
 
         //when
         mockMvc.perform(get("/recipe/1/image"))
@@ -97,7 +98,7 @@ class ImageControllerTest {
         Byte[] bytesBoxed = new Byte[s.getBytes().length];
         Arrays.setAll(bytesBoxed, n -> s.getBytes()[n]);
         command.setImage(bytesBoxed);
-        when(recipeService.findCommandById(anyString())).thenReturn(command);
+        when(recipeService.findCommandById(anyString())).thenReturn(Mono.just(command));
 
         //when
         MockHttpServletResponse response = mockMvc.perform(get("/recipe/1/recipeimage"))

@@ -43,7 +43,7 @@ public class RecipeServiceIT {
 
         //when
         testRecipeCommand.setDescription(NEW_DESCRIPTION);
-        RecipeCommand savedRecipeCommand = recipeService.saveRecipeCommand(testRecipeCommand);
+        RecipeCommand savedRecipeCommand = recipeService.saveRecipeCommand(testRecipeCommand).block();
 
         //then
         assertEquals(NEW_DESCRIPTION, savedRecipeCommand.getDescription());
@@ -57,7 +57,7 @@ public class RecipeServiceIT {
     void testFindCommandById() {
 
         //when
-        RecipeCommand recipeCommand = recipeService.findCommandById("1");
+        RecipeCommand recipeCommand = recipeService.findCommandById("1").block();
 
         //then
         assertNotNull(recipeCommand);

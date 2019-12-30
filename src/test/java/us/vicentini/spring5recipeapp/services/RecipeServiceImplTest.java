@@ -5,16 +5,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.converters.RecipeCommandToRecipe;
 import us.vicentini.spring5recipeapp.converters.RecipeToRecipeCommand;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
-import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
+import us.vicentini.spring5recipeapp.repositories.reactive.RecipeReactiveRepository;
 
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -30,7 +30,7 @@ class RecipeServiceImplTest {
     private static final String ENTITY_ID = "1";
 
     @Mock
-    private RecipeRepository recipeRepository;
+    private RecipeReactiveRepository recipeRepository;
     @Mock
     private RecipeCommandToRecipe recipeCommandToRecipe;
     @Mock
@@ -48,9 +48,9 @@ class RecipeServiceImplTest {
     @Test
     void getRecipesFindById() {
         Recipe recipe = mock(Recipe.class);
-        when(recipeRepository.findById(ENTITY_ID)).thenReturn(Optional.of(recipe));
+        when(recipeRepository.findById(ENTITY_ID)).thenReturn(Mono.just(recipe));
 
-        Recipe recipeReturned = recipeService.findById(ENTITY_ID);
+        Recipe recipeReturned = recipeService.findById(ENTITY_ID).block();
 
         assertNotNull(recipeReturned, "Null recipe returned");
         verify(recipeRepository).findById(ENTITY_ID);
@@ -59,10 +59,11 @@ class RecipeServiceImplTest {
 
     @Test
     public void getRecipeByIdTestNotFound() {
-        Optional<Recipe> recipeOptional = Optional.empty();
+        Mono<Recipe> recipeOptional = Mono.empty();
         when(recipeRepository.findById(anyString())).thenReturn(recipeOptional);
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> recipeService.findById(ENTITY_ID));
+        NotFoundException exception =
+                assertThrows(NotFoundException.class, () -> recipeService.findById(ENTITY_ID).block());
 
         assertNotNull(exception);
         assertEquals("Recipe Not Found for id: 1", exception.getMessage());
@@ -72,9 +73,9 @@ class RecipeServiceImplTest {
 
     @Test
     void getRecipesFindByIdNotFound() {
-        when(recipeRepository.findById(ENTITY_ID)).thenReturn(Optional.empty());
+        when(recipeRepository.findById(ENTITY_ID)).thenReturn(Mono.empty());
 
-        NotFoundException ex = assertThrows(NotFoundException.class, () -> recipeService.findById(ENTITY_ID));
+        NotFoundException ex = assertThrows(NotFoundException.class, () -> recipeService.findById(ENTITY_ID).block());
 
         assertEquals("Recipe Not Found for id: 1", ex.getMessage());
         verify(recipeRepository).findById(ENTITY_ID);
@@ -83,9 +84,9 @@ class RecipeServiceImplTest {
     @Test
     void getRecipes() {
         Recipe recipe = mock(Recipe.class);
-        when(recipeRepository.findAll()).thenReturn(Collections.singletonList(recipe));
+        when(recipeRepository.findAll()).thenReturn(Flux.just(recipe));
 
-        Set<Recipe> recipes = recipeService.getRecipes();
+        List<Recipe> recipes = recipeService.getRecipes().collectList().block();
 
         assertNotNull(recipes);
         assertFalse(recipes.isEmpty());
@@ -97,10 +98,10 @@ class RecipeServiceImplTest {
     void getRecipesCommandFindById() {
         Recipe recipe = mock(Recipe.class);
         RecipeCommand recipeCommand = mock(RecipeCommand.class);
-        when(recipeRepository.findById(ENTITY_ID)).thenReturn(Optional.of(recipe));
+        when(recipeRepository.findById(ENTITY_ID)).thenReturn(Mono.just(recipe));
         when(recipeToRecipeCommand.convert(recipe)).thenReturn(recipeCommand);
 
-        RecipeCommand recipeReturned = recipeService.findCommandById(ENTITY_ID);
+        RecipeCommand recipeReturned = recipeService.findCommandById(ENTITY_ID).block();
 
         assertNotNull(recipeReturned, "Null recipe returned");
         verify(recipeRepository).findById(ENTITY_ID);
@@ -109,7 +110,9 @@ class RecipeServiceImplTest {
 
     @Test
     void testDeleteById() {
-        recipeService.deleteById(ENTITY_ID);
+        when(recipeRepository.deleteById(ENTITY_ID)).thenReturn(Mono.empty());
+
+        recipeService.deleteById(ENTITY_ID).block();
 
         verify(recipeRepository).deleteById(ENTITY_ID);
     }

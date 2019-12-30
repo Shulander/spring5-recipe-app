@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
 import us.vicentini.spring5recipeapp.services.RecipeService;
@@ -51,7 +52,7 @@ class RecipeControllerTest {
     @Test
     void testGetRecipe() throws Exception {
         RecipeCommand recipe = RecipeCommand.builder().id("1").build();
-        when(recipeService.findCommandById(anyString())).thenReturn(recipe);
+        when(recipeService.findCommandById(anyString())).thenReturn(Mono.just(recipe));
 
         mockMvc.perform(get("/recipe/1/show"))
                 .andExpect(status().isOk())
@@ -94,7 +95,7 @@ class RecipeControllerTest {
     void testPersistNewRecipe() throws Exception {
         String recipeID = "3";
         when(recipeService.saveRecipeCommand(any(RecipeCommand.class)))
-                .thenReturn(RecipeCommand.builder().id(recipeID).build());
+                .thenReturn(Mono.just(RecipeCommand.builder().id(recipeID).build()));
 
         mockMvc.perform(post("/recipe")
                                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -129,7 +130,7 @@ class RecipeControllerTest {
 
     @Test
     void testUpdateRecipeView() throws Exception {
-        when(recipeService.findCommandById("1")).thenReturn(RecipeCommand.builder().id("1").build());
+        when(recipeService.findCommandById("1")).thenReturn(Mono.just(RecipeCommand.builder().id("1").build()));
 
         mockMvc.perform(get("/recipe/1/update"))
                 .andExpect(status().isOk())
@@ -140,11 +141,13 @@ class RecipeControllerTest {
 
     @Test
     void testDeleteAction() throws Exception {
+        when(recipeService.deleteById("1")).thenReturn(Mono.empty());
+
         mockMvc.perform(get("/recipe/1/delete"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/index"));
 
-        verify(recipeService).deleteById(anyString());
+        verify(recipeService).deleteById("1");
     }
 
 

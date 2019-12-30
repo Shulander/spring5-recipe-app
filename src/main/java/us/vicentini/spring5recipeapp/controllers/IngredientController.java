@@ -32,7 +32,7 @@ public class IngredientController {
 
     @GetMapping("/recipe/{recipeId}/ingredients")
     public String listRecipeIngredients(@PathVariable String recipeId, Model model) {
-        RecipeCommand recipe = recipeService.findCommandById(recipeId);
+        RecipeCommand recipe = recipeService.findCommandById(recipeId).block();
         model.addAttribute("recipe", recipe);
         return "recipe/ingredient/list";
     }
@@ -73,7 +73,7 @@ public class IngredientController {
 
     @GetMapping("/recipe/{recipeId}/ingredient/new")
     public String newRecipeIngredient(@PathVariable String recipeId, Model model) {
-        RecipeCommand recipeCommand = recipeService.findCommandById(recipeId);
+        RecipeCommand recipeCommand = recipeService.findCommandById(recipeId).block();
         //todo raise exception if null
 
         IngredientCommand ingredient = IngredientCommand.builder()

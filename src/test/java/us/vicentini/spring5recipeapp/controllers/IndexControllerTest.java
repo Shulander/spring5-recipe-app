@@ -8,13 +8,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ui.Model;
+import reactor.core.publisher.Flux;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.services.RecipeService;
 
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -34,25 +35,26 @@ class IndexControllerTest {
 
     @Test
     void getIndexPage() {
+        when(recipeService.getRecipes()).thenReturn(Flux.empty());
         String actual = indexController.getIndexPage(model);
 
         assertEquals("index", actual);
         verify(recipeService).getRecipes();
-        verify(model).addAttribute(eq("recipes"), anySet());
+        verify(model).addAttribute(eq("recipes"), anyList());
     }
 
     @Test
     void getIndexPageWithArgumentCaptor() {
-        Set<Recipe> recipes = Set.of(Recipe.builder().id("1").build(), Recipe.builder().id("2").build());
-        when(recipeService.getRecipes()).thenReturn(recipes);
-        ArgumentCaptor<Set<Recipe>> argumentCaptor = ArgumentCaptor.forClass(Set.class);
+        List<Recipe> recipes = List.of(Recipe.builder().id("1").build(), Recipe.builder().id("2").build());
+        when(recipeService.getRecipes()).thenReturn(Flux.fromIterable(recipes));
+        ArgumentCaptor<List<Recipe>> argumentCaptor = ArgumentCaptor.forClass(List.class);
 
         String actual = indexController.getIndexPage(model);
 
         assertEquals("index", actual);
         verify(recipeService).getRecipes();
         verify(model).addAttribute(eq("recipes"), argumentCaptor.capture());
-        Set<Recipe> actualCapturedRecipes = argumentCaptor.getValue();
+        List<Recipe> actualCapturedRecipes = argumentCaptor.getValue();
         assertEquals(2, actualCapturedRecipes.size());
         assertEquals(recipes, actualCapturedRecipes);
     }
