@@ -27,23 +27,26 @@ public class IngredientServiceImpl implements IngredientService {
 
     @Override
     public Mono<IngredientCommand> findByRecipeIdAndIngredientId(String recipeId, String ingredientId) {
+        IngredientCommand ingredientCommand = IngredientCommand.builder().id(ingredientId).build();
         return recipeRepository.findById(recipeId)
-                .switchIfEmpty(Mono.error(new NotFoundException("Recipe Not Found for id: " + recipeId)))
-                .map(recipe -> IngredientServiceImpl.this
-                        .findRecipeIngredientCommand(IngredientCommand.builder().id(ingredientId).build(),
-                                                     recipe));
+                .switchIfEmpty(buildErrorForRecipeNotFound(recipeId))
+                .flatMap(recipe -> findRecipeIngredientCommand(ingredientCommand, recipe));
+    }
+
+
+    private Mono<Recipe> buildErrorForRecipeNotFound(String recipeId) {
+        return Mono.error(new NotFoundException("Recipe Not Found for id: " + recipeId));
     }
 
 
     @Override
     public Mono<IngredientCommand> saveIngredientCommand(IngredientCommand ingredientCommand) {
         return recipeRepository.findById(ingredientCommand.getRecipeId())
-                .switchIfEmpty(Mono.error(
-                        new NotFoundException("Recipe Not Found for id: " + ingredientCommand.getRecipeId())))
+                .switchIfEmpty(buildErrorForRecipeNotFound(ingredientCommand.getRecipeId()))
                 .map(recipe -> createOrUpdateIngredient(recipe, ingredientCommand))
                 .map(recipeRepository::save)
                 .map(Mono::block)
-                .map(savedRecipe -> findRecipeIngredientCommand(ingredientCommand, savedRecipe));
+                .flatMap(savedRecipe -> findRecipeIngredientCommand(ingredientCommand, savedRecipe));
     }
 
 
@@ -67,7 +70,7 @@ public class IngredientServiceImpl implements IngredientService {
     @Override
     public Mono<Void> deleteByRecipeIdAndIngredientId(String recipeId, String ingredientId) {
         return recipeRepository.findById(recipeId)
-                .switchIfEmpty(Mono.error(new NotFoundException("Recipe Not Found for id: " + recipeId)))
+                .switchIfEmpty(buildErrorForRecipeNotFound(recipeId))
                 .map(recipe -> findAndRemoveIngredientFromRecipe(recipe, ingredientId))
                 .flatMap(recipeRepository::save)
                 .flatMap(recipe -> Mono.empty());
@@ -82,18 +85,22 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
 
-    private IngredientCommand findRecipeIngredientCommand(IngredientCommand ingredientCommand, Recipe recipe) {
-        return recipe
-                .getIngredients()
-                .stream()
+    private Mono<IngredientCommand> findRecipeIngredientCommand(IngredientCommand ingredientCommand, Recipe recipe) {
+        return Mono.just(recipe)
+                .flatMapIterable(Recipe::getIngredients)
                 .filter(ingredient -> isSameIngredient(ingredientCommand, ingredient))
-                .findFirst()
+                .singleOrEmpty()
+                .switchIfEmpty(buildErrorForIngredientNotFound(ingredientCommand))
                 .map(ingredientToIngredientCommand::convert)
                 .map(ingredient -> {
                     ingredient.setRecipeId(recipe.getId());
                     return ingredient;
-                })
-                .orElseThrow(() -> new NotFoundException("Ingredient Not Found for id: " + ingredientCommand.getId()));
+                });
+    }
+
+
+    private Mono<Ingredient> buildErrorForIngredientNotFound(IngredientCommand ingredientCommand) {
+        return Mono.error(new NotFoundException("Ingredient Not Found for id: " + ingredientCommand.getId()));
     }
 
 
