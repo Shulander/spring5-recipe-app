@@ -58,7 +58,7 @@ public class IngredientServiceImpl implements IngredientService {
                 .ifPresentOrElse(ingredient -> {
                     ingredient.setAmount(ingredientCommand.getAmount());
                     ingredient.setDescription(ingredientCommand.getDescription());
-                    ingredient.setUnitOfMeasure(IngredientServiceImpl.this.getById(ingredientCommand));
+                    ingredient.setUnitOfMeasure(getById(ingredientCommand));
                 }, () -> {
                     Ingredient convert = ingredientCommandToIngredient.convert(ingredientCommand);
                     recipe.addIngredient(convert);

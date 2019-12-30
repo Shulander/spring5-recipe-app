@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.HashSet;
@@ -34,10 +33,8 @@ public class Recipe {
     private Difficulty difficulty;
     private Byte[] image;
     private Notes notes;
-//    @DBRef
     @Builder.Default
     private Set<Ingredient> ingredients = new HashSet<>();
-    @DBRef
     @Builder.Default
     private Set<Category> categories = new HashSet<>();
 
