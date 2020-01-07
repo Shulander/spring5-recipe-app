@@ -1,4 +1,4 @@
-package us.vicentini.spring5recipeapp.repositories.reactive;
+package us.vicentini.spring5recipeapp.repositories;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,32 +6,32 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
+import us.vicentini.spring5recipeapp.domain.Category;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 @DataMongoTest
-class UnitOfMeasureReactiveRepositoryIT {
+class CategoryReactiveRepositoryIT {
     @Autowired
-    private UnitOfMeasureReactiveRepository unitOfMeasureReactiveRepository;
+    private CategoryReactiveRepository categoryReactiveRepository;
 
 
     @BeforeEach
     public void init() {
-        unitOfMeasureReactiveRepository.deleteAll().block();
+        categoryReactiveRepository.deleteAll().block();
     }
 
 
     @Test
     public void testSave() {
-        UnitOfMeasure category = new UnitOfMeasure();
+        Category category = new Category();
         category.setDescription("Foo");
 
-        unitOfMeasureReactiveRepository.save(category).block();
+        categoryReactiveRepository.save(category).block();
 
-        Long count = unitOfMeasureReactiveRepository.count().block();
+        Long count = categoryReactiveRepository.count().block();
 
         assertEquals(Long.valueOf(1L), count);
     }
@@ -39,12 +39,12 @@ class UnitOfMeasureReactiveRepositoryIT {
 
     @Test
     public void testFindByDescription() {
-        UnitOfMeasure category = new UnitOfMeasure();
+        Category category = new Category();
         category.setDescription("Foo");
 
-        unitOfMeasureReactiveRepository.save(category).then().block();
+        categoryReactiveRepository.save(category).then().block();
 
-        UnitOfMeasure fetchedCat = unitOfMeasureReactiveRepository.findByDescription("Foo").block();
+        Category fetchedCat = categoryReactiveRepository.findByDescription("Foo").block();
 
         assertNotNull(fetchedCat.getId());
     }

@@ -9,7 +9,7 @@ import us.vicentini.spring5recipeapp.converters.RecipeCommandToRecipe;
 import us.vicentini.spring5recipeapp.converters.RecipeToRecipeCommand;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
-import us.vicentini.spring5recipeapp.repositories.reactive.RecipeReactiveRepository;
+import us.vicentini.spring5recipeapp.repositories.RecipeReactiveRepository;
 
 @Service
 @RequiredArgsConstructor

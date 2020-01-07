@@ -11,9 +11,9 @@ import us.vicentini.spring5recipeapp.domain.Notes;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
 import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
-import us.vicentini.spring5recipeapp.repositories.CategoryRepository;
-import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
-import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureRepository;
+import us.vicentini.spring5recipeapp.repositories.CategoryReactiveRepository;
+import us.vicentini.spring5recipeapp.repositories.RecipeReactiveRepository;
+import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureReactiveRepository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -25,15 +25,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
 
-    private final CategoryRepository categoryRepository;
-    private final UnitOfMeasureRepository unitOfMeasureRepository;
-    private final RecipeRepository recipeRepository;
+    private final CategoryReactiveRepository categoryRepository;
+    private final UnitOfMeasureReactiveRepository unitOfMeasureRepository;
+    private final RecipeReactiveRepository recipeRepository;
 
 
     @Override
     public void run(String... args) {
         log.info("Data Loader started");
-        recipeRepository.saveAll(loadData());
+        recipeRepository.saveAll(loadData()).collectList().block();
         log.info("Data loader finished!");
     }
 
@@ -224,7 +224,7 @@ public class DataLoader implements CommandLineRunner {
 
 
     private Category getCategory(String category) {
-        Optional<Category> americanCategoryOptional = categoryRepository.findByDescription(category);
+        Optional<Category> americanCategoryOptional = categoryRepository.findByDescription(category).blockOptional();
 
         if (americanCategoryOptional.isEmpty()) {
             throw new NotFoundException("Expected Category Not Found " + category + "'");
@@ -234,7 +234,8 @@ public class DataLoader implements CommandLineRunner {
 
 
     private UnitOfMeasure getUnitOfMeasure(String uom) {
-        Optional<UnitOfMeasure> eachUomOptional = unitOfMeasureRepository.findByDescription(uom);
+        Optional<UnitOfMeasure> eachUomOptional = unitOfMeasureRepository.findByDescription(uom)
+                .blockOptional();
 
         if (eachUomOptional.isEmpty()) {
             throw new NotFoundException("Expected UOM Not Found '" + uom + "'");

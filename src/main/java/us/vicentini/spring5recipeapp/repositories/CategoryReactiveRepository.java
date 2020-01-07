@@ -1,4 +1,4 @@
-package us.vicentini.spring5recipeapp.repositories.reactive;
+package us.vicentini.spring5recipeapp.repositories;
 
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Mono;

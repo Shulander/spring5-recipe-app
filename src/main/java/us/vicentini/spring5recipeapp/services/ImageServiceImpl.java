@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
-import us.vicentini.spring5recipeapp.repositories.reactive.RecipeReactiveRepository;
+import us.vicentini.spring5recipeapp.repositories.RecipeReactiveRepository;
 
 import java.io.IOException;
 import java.util.Arrays;

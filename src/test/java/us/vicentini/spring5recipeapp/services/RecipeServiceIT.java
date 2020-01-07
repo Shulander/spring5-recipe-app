@@ -10,7 +10,7 @@ import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.converters.RecipeCommandToRecipe;
 import us.vicentini.spring5recipeapp.converters.RecipeToRecipeCommand;
 import us.vicentini.spring5recipeapp.domain.Recipe;
-import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
+import us.vicentini.spring5recipeapp.repositories.RecipeReactiveRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -26,7 +26,7 @@ public class RecipeServiceIT {
     RecipeService recipeService;
 
     @Autowired
-    RecipeRepository recipeRepository;
+    RecipeReactiveRepository recipeRepository;
 
     @Autowired
     RecipeCommandToRecipe recipeCommandToRecipe;
@@ -37,7 +37,7 @@ public class RecipeServiceIT {
     @Test
     void testSaveOfDescription() {
         //given
-        Iterable<Recipe> recipes = recipeRepository.findAll();
+        Iterable<Recipe> recipes = recipeRepository.findAll().toIterable();
         Recipe testRecipe = recipes.iterator().next();
         RecipeCommand testRecipeCommand = recipeToRecipeCommand.convert(testRecipe);
 

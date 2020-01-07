@@ -10,8 +10,8 @@ import us.vicentini.spring5recipeapp.domain.Ingredient;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
 import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
-import us.vicentini.spring5recipeapp.repositories.reactive.RecipeReactiveRepository;
-import us.vicentini.spring5recipeapp.repositories.reactive.UnitOfMeasureReactiveRepository;
+import us.vicentini.spring5recipeapp.repositories.RecipeReactiveRepository;
+import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureReactiveRepository;
 
 import java.util.Objects;
 

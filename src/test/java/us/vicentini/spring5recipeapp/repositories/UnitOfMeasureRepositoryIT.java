@@ -20,13 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UnitOfMeasureRepositoryIT {
 
     @Autowired
-    private UnitOfMeasureRepository unitOfMeasureRepository;
+    private UnitOfMeasureReactiveRepository unitOfMeasureRepository;
 
 
     @Test
     void findByDescriptionTeaspoon() {
 
-        Optional<UnitOfMeasure> unitOfMeasure = unitOfMeasureRepository.findByDescription("Teaspoon");
+        Optional<UnitOfMeasure> unitOfMeasure = unitOfMeasureRepository.findByDescription("Teaspoon").blockOptional();
 
         assertTrue(unitOfMeasure.isPresent());
         assertEquals("Teaspoon", unitOfMeasure.get().getDescription());
@@ -36,7 +36,7 @@ class UnitOfMeasureRepositoryIT {
     @Test
     void findByDescriptionCup() {
 
-        Optional<UnitOfMeasure> unitOfMeasure = unitOfMeasureRepository.findByDescription("Cup");
+        Optional<UnitOfMeasure> unitOfMeasure = unitOfMeasureRepository.findByDescription("Cup").blockOptional();
 
         assertTrue(unitOfMeasure.isPresent());
         assertEquals("Cup", unitOfMeasure.get().getDescription());

@@ -1,4 +1,4 @@
-package us.vicentini.spring5recipeapp.repositories.reactive;
+package us.vicentini.spring5recipeapp.repositories;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import us.vicentini.spring5recipeapp.commands.UnitOfMeasureCommand;
 import us.vicentini.spring5recipeapp.converters.UnitOfMeasureToUnitOfMeasureCommand;
-import us.vicentini.spring5recipeapp.repositories.reactive.UnitOfMeasureReactiveRepository;
+import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureReactiveRepository;
 
 @Service
 @RequiredArgsConstructor

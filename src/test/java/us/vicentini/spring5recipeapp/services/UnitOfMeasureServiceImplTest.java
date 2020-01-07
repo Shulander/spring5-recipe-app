@@ -8,7 +8,7 @@ import reactor.core.publisher.Flux;
 import us.vicentini.spring5recipeapp.commands.UnitOfMeasureCommand;
 import us.vicentini.spring5recipeapp.converters.UnitOfMeasureToUnitOfMeasureCommand;
 import us.vicentini.spring5recipeapp.domain.UnitOfMeasure;
-import us.vicentini.spring5recipeapp.repositories.reactive.UnitOfMeasureReactiveRepository;
+import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureReactiveRepository;
 
 import java.util.List;
 
