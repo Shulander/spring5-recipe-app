@@ -11,10 +11,9 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.domain.Recipe;
-import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
-
-import java.util.Optional;
+import us.vicentini.spring5recipeapp.repositories.reactive.RecipeReactiveRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.when;
 class ImageServiceImplTest {
 
     @Mock
-    private RecipeRepository recipeRepository;
+    private RecipeReactiveRepository recipeRepository;
 
     @InjectMocks
     private ImageServiceImpl imageService;
@@ -40,14 +39,15 @@ class ImageServiceImplTest {
                                                             "Spring Framework Guru".getBytes());
 
         Recipe recipe = Recipe.builder().id(id).build();
-        Optional<Recipe> recipeOptional = Optional.of(recipe);
+        Mono<Recipe> recipeMono = Mono.just(recipe);
 
-        when(recipeRepository.findById(anyString())).thenReturn(recipeOptional);
+        when(recipeRepository.findById(anyString())).thenReturn(recipeMono);
+        when(recipeRepository.save(recipe)).thenReturn(recipeMono);
 
         ArgumentCaptor<Recipe> argumentCaptor = ArgumentCaptor.forClass(Recipe.class);
 
         //when
-        imageService.saveImageFile(id, multipartFile);
+        imageService.saveImageFile(id, multipartFile).block();
 
         //then
         verify(recipeRepository).findById(id);

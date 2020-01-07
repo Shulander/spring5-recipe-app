@@ -80,12 +80,13 @@ class ImageControllerTest {
         MockMultipartFile multipartFile =
                 new MockMultipartFile("image_file", "testing.txt", "text/plain",
                                       "Spring Framework Guru".getBytes());
+        when(imageService.saveImageFile(eq("1"), any(MultipartFile.class))).thenReturn(Mono.empty());
 
         mockMvc.perform(multipart("/recipe/1/image").file(multipartFile))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(header().string("Location", "/recipe/1/show"));
 
-        verify(imageService, times(1)).saveImageFile(eq("1"), any(MultipartFile.class));
+        verify(imageService).saveImageFile(eq("1"), any(MultipartFile.class));
     }
 
     @Test

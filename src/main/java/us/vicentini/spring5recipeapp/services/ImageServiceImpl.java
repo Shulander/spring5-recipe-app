@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import us.vicentini.spring5recipeapp.domain.Recipe;
+import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
-import us.vicentini.spring5recipeapp.repositories.RecipeRepository;
+import us.vicentini.spring5recipeapp.repositories.reactive.RecipeReactiveRepository;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -16,17 +16,19 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class ImageServiceImpl implements ImageService {
 
-    private final RecipeRepository recipeRepository;
+    private final RecipeReactiveRepository recipeRepository;
 
 
     @Override
-    public void saveImageFile(String recipeId, MultipartFile multipartFile) {
-        Recipe recipe = recipeRepository.findById(recipeId)
-                .orElseThrow(() -> {
-                    throw new NotFoundException("Recipe Not Found for id: " + recipeId);
-                });
-        recipe.setImage(getImageBytes(multipartFile));
-        recipeRepository.save(recipe);
+    public Mono<Void> saveImageFile(String recipeId, MultipartFile multipartFile) {
+        return recipeRepository.findById(recipeId)
+                .switchIfEmpty(Mono.error(new NotFoundException("Recipe Not Found for id: " + recipeId)))
+                .map(recipe -> {
+                    recipe.setImage(getImageBytes(multipartFile));
+                    return recipe;
+                })
+                .flatMap(recipeRepository::save)
+                .flatMap(recipe -> Mono.empty());
     }
 
     private Byte[] getImageBytes(MultipartFile multipartFile) {
