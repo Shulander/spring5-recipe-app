@@ -28,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+@Disabled
 @ExtendWith(MockitoExtension.class)
 class RecipeControllerTest {
 
@@ -48,6 +49,7 @@ class RecipeControllerTest {
                 .setControllerAdvice(new ControllerExceptionHandler())
                 .build();
     }
+
 
     @Test
     void testGetRecipe() throws Exception {
@@ -90,6 +92,7 @@ class RecipeControllerTest {
                 .andExpect(model().attributeExists("recipe"));
 
     }
+
 
     @Test
     void testPersistNewRecipe() throws Exception {

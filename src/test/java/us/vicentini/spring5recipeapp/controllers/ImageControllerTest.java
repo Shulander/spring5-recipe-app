@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 //import org.springframework.mock.web.MockHttpServletResponse;
-
+@Disabled
 @ExtendWith(MockitoExtension.class)
 class ImageControllerTest {
 
