@@ -185,8 +185,10 @@ class IngredientServiceImplTest {
                 .build();
         savedRecipe.addIngredient(ingredient);
 
+        UnitOfMeasure uom = UnitOfMeasure.builder().id(ENTITY_ID).description("uom").build();
         when(recipeRepository.findById("2")).thenReturn(recipeOptional);
         when(recipeRepository.save(recipe)).thenReturn(Mono.just(savedRecipe));
+        when(unitOfMeasureRepository.findById(ENTITY_ID)).thenReturn(Mono.just(uom));
 
         //when
         IngredientCommand savedCommand = ingredientService.saveIngredientCommand(ingredientCommand).block();
@@ -198,6 +200,7 @@ class IngredientServiceImplTest {
         assertEquals(ingredientCommand.getUnitOfMeasure().getId(), savedCommand.getUnitOfMeasure().getId());
         verify(recipeRepository).findById("2");
         verify(recipeRepository).save(any(Recipe.class));
+        verify(unitOfMeasureRepository).findById(ENTITY_ID);
     }
 
     @Test

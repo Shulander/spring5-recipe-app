@@ -60,9 +60,9 @@ public class RecipeController {
 
 
     @GetMapping({"/{id}/delete"})
-    public String delete(@PathVariable String id) {
-        recipeService.deleteById(id).block();
-
-        return "redirect:/index";
+    public Mono<String> delete(@PathVariable String id) {
+        log.info("delete recipe '{}'", id);
+        return recipeService.deleteById(id)
+                .thenReturn("redirect:/index");
     }
 }

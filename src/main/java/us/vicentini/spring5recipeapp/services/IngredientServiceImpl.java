@@ -1,6 +1,7 @@
 package us.vicentini.spring5recipeapp.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.commands.IngredientCommand;
@@ -14,7 +15,9 @@ import us.vicentini.spring5recipeapp.repositories.RecipeReactiveRepository;
 import us.vicentini.spring5recipeapp.repositories.UnitOfMeasureReactiveRepository;
 
 import java.util.Objects;
+import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class IngredientServiceImpl implements IngredientService {
@@ -43,27 +46,54 @@ public class IngredientServiceImpl implements IngredientService {
     public Mono<IngredientCommand> saveIngredientCommand(IngredientCommand ingredientCommand) {
         return recipeRepository.findById(ingredientCommand.getRecipeId())
                 .switchIfEmpty(buildErrorForRecipeNotFound(ingredientCommand.getRecipeId()))
-                .map(recipe -> createOrUpdateIngredient(recipe, ingredientCommand))
-                .map(recipeRepository::save)
-                .map(Mono::block)
+                .flatMap(recipe -> createOrUpdateIngredient(recipe, ingredientCommand))
+                .flatMap(recipeRepository::save)
                 .flatMap(savedRecipe -> findRecipeIngredientCommand(ingredientCommand, savedRecipe));
     }
 
 
-    private Recipe createOrUpdateIngredient(Recipe recipe, IngredientCommand ingredientCommand) {
-        recipe.getIngredients()
+    private Mono<Recipe> createOrUpdateIngredient(Recipe recipe, IngredientCommand ingredientCommand) {
+        Optional<Ingredient> optionalIngredient = recipe.getIngredients()
                 .stream()
                 .filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
-                .findFirst()
-                .ifPresentOrElse(ingredient -> {
-                    ingredient.setAmount(ingredientCommand.getAmount());
-                    ingredient.setDescription(ingredientCommand.getDescription());
-                    ingredient.setUnitOfMeasure(getById(ingredientCommand));
-                }, () -> {
-                    Ingredient convert = ingredientCommandToIngredient.convert(ingredientCommand);
-                    recipe.addIngredient(convert);
+                .findFirst();
+        return optionalIngredient
+                .map(ingredient -> updateExistingIngredient(recipe, ingredientCommand, ingredient))
+                .orElseGet(() -> createNewIngredient(recipe, ingredientCommand));
+
+    }
+
+
+    private Mono<Recipe> createNewIngredient(Recipe recipe, IngredientCommand ingredientCommand) {
+        return Mono.just(ingredientCommand)
+                .map(ingredientCommandToIngredient::convert)
+                .flatMap(ingredient -> updateUOMFromDB(ingredientCommand, ingredient))
+                .flatMap(ingredient -> {
+                    recipe.addIngredient(ingredient);
+                    return Mono.just(recipe);
                 });
-        return recipe;
+    }
+
+
+    private Mono<Recipe> updateExistingIngredient(Recipe recipe, IngredientCommand ingredientCommand,
+                                                  Ingredient ingredient) {
+        return Mono.just(ingredient)
+                .flatMap(ingredient1 -> {
+                    ingredient1.setAmount(ingredientCommand.getAmount());
+                    ingredient1.setDescription(ingredientCommand.getDescription());
+                    return Mono.just(ingredient1);
+                })
+                .flatMap(ingredient1 -> updateUOMFromDB(ingredientCommand, ingredient1))
+                .flatMap(ingredient1 -> Mono.just(recipe));
+    }
+
+
+    private Mono<Ingredient> updateUOMFromDB(IngredientCommand ingredientCommand, Ingredient ingredient) {
+        return getById(ingredientCommand)
+                .flatMap(unitOfMeasure -> {
+                    ingredient.setUnitOfMeasure(unitOfMeasure);
+                    return Mono.just(ingredient);
+                });
     }
 
 
@@ -71,17 +101,17 @@ public class IngredientServiceImpl implements IngredientService {
     public Mono<Void> deleteByRecipeIdAndIngredientId(String recipeId, String ingredientId) {
         return recipeRepository.findById(recipeId)
                 .switchIfEmpty(buildErrorForRecipeNotFound(recipeId))
-                .map(recipe -> findAndRemoveIngredientFromRecipe(recipe, ingredientId))
+                .flatMap(recipe -> findAndRemoveIngredientFromRecipe(recipe, ingredientId))
                 .flatMap(recipeRepository::save)
                 .flatMap(recipe -> Mono.empty());
     }
 
 
-    private Recipe findAndRemoveIngredientFromRecipe(Recipe recipe, String ingredientId) {
+    private Mono<Recipe> findAndRemoveIngredientFromRecipe(Recipe recipe, String ingredientId) {
         if (!recipe.getIngredients().removeIf(ingredient -> ingredient.getId().equals(ingredientId))) {
-            throw new NotFoundException("Ingredient Not Found for id: " + ingredientId);
+            return Mono.error(new NotFoundException("Ingredient Not Found for id: " + ingredientId));
         }
-        return recipe;
+        return Mono.just(recipe);
     }
 
 
@@ -116,10 +146,10 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
 
-    private UnitOfMeasure getById(IngredientCommand ingredientCommand) {
+    private Mono<UnitOfMeasure> getById(IngredientCommand ingredientCommand) {
         if (ingredientCommand.getUnitOfMeasure() == null) {
-            return null;
+            return Mono.empty();
         }
-        return unitOfMeasureRepository.findById(ingredientCommand.getUnitOfMeasure().getId()).block();
+        return unitOfMeasureRepository.findById(ingredientCommand.getUnitOfMeasure().getId());
     }
 }

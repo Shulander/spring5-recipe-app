@@ -6,7 +6,7 @@
     <!-- Latest compiled and minified CSS -->
     <link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
           integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-          rel="stylesheet" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}">
+          rel="stylesheet" th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}"/>
 
     <script src="/webjars/jquery/1.11.1/jquery.min.js"></script>
 
@@ -22,6 +22,9 @@
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
             <form method="post" th:action="@{'/recipe/' + ${ingredient.getRecipeId()} + '/ingredient'} " th:object="${ingredient}">
+                <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                    <p>Please Correct Errors Below</p>
+                </div>
                 <input th:field="*{id}" type="hidden"/>
                 <input th:field="*{recipeId}" type="hidden"/>
                 <div class="pannel-group">
@@ -29,15 +32,40 @@
                         <div class="panel-heading"><h1 class="panel-title">Edit Ingredient Information</h1></div>
                         <div class="panel-body">
                             <div class="row">
-                                <div class="col-md-3 form-group"><label>Description:</label> <input class="form-control" th:field="*{description}" type="text"/></div>
-                                <div class="col-md-3 form-group"><label>Amount:</label> <input class="form-control" th:field="*{amount}" type="number"/></div>
-                                <div class="col-md-3 form-group"><label>UOM:</label> <select class="form-control" name="unitOfMeasure.id">
-                                    <option th:each="uomEach : ${uomList}"
-                                            th:selected="${uomEach.id.equals(ingredient?.unitOfMeasure?.id)}"
-                                            th:text="${uomEach.description}"
-                                            th:value="${uomEach.id}"> Each
-                                    </option>
-                                </select></div>
+                                <div class="col-md-3 form-group" th:class="${#fields.hasErrors('description')}? 'col-md-3 form-group has-error' : 'col-md-3 form-group'">
+                                    <label>Description:</label>
+                                    <input class="form-control" th:field="*{description}" type="text" th:errorclass="has-error"/>
+                                    <div class="help-block" th:if="${#fields.hasErrors('description')}">
+                                        <ul>
+                                            <li th:each="err : ${#fields.errors('description')}" th:text="${err}">Description error message</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 form-group" th:class="${#fields.hasErrors('amount')}? 'col-md-3 form-group has-error' : 'col-md-3 form-group'">
+                                    <label>Amount:</label>
+                                    <input class="form-control" th:field="*{amount}" type="number" th:errorclass="has-error"/>
+                                    <div class="help-block" th:if="${#fields.hasErrors('amount')}">
+                                        <ul>
+                                            <li th:each="err : ${#fields.errors('amount')}" th:text="${err}">Amount error message</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 form-group" th:class="${#fields.hasErrors('unitOfMeasure')}? 'col-md-3 form-group has-error' : 'col-md-3 form-group'">
+                                    <label>UOM:</label>
+                                    <select class="form-control" name="unitOfMeasure.id" th:errorclass="has-error">
+                                        <option th:each="uomEach : ${uomList}"
+                                                th:selected="${uomEach.id.equals(ingredient?.unitOfMeasure?.id)}"
+                                                th:text="${uomEach.description}"
+                                                th:value="${uomEach.id}"> Each
+                                        </option>
+                                    </select>
+                                    <div class="help-block" th:if="${#fields.hasErrors('unitOfMeasure')}">
+                                        <ul>
+                                            <li th:each="err : ${#fields.errors('unitOfMeasure')}" th:text="${err}">unitOfMeasure error message</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -37,7 +37,7 @@ class IndexControllerSpringWebMvcIT {
                 .build();
         when(recipeService.getRecipes()).thenReturn(Flux.just(recipe));
 
-        webTestClient.post()
+        webTestClient.get()
                 .uri(URI.create("/"))
                 .exchange()
                 .expectStatus().is2xxSuccessful()

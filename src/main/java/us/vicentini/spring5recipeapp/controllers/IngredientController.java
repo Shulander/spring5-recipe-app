@@ -17,6 +17,7 @@ import us.vicentini.spring5recipeapp.services.IngredientService;
 import us.vicentini.spring5recipeapp.services.RecipeService;
 import us.vicentini.spring5recipeapp.services.UnitOfMeasureService;
 
+import javax.validation.Valid;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -24,6 +25,11 @@ import java.util.UUID;
 @Controller
 @RequiredArgsConstructor
 public class IngredientController {
+    private static final String RECIPE_INGREDIENT_INGREDIENTFORM = "recipe/ingredient/ingredientform";
+    private static final String INGREDIENT_ATTRIBUTE_NAME = "ingredient";
+    private static final String RECIPE_INGREDIENT_SHOW = "recipe/ingredient/show";
+    private static final String RECIPE_INGREDIENT_LIST = "recipe/ingredient/list";
+    private static final String RECIPE_ATTRIBUTE_NAME = "recipe";
 
     private final RecipeService recipeService;
 
@@ -31,27 +37,33 @@ public class IngredientController {
 
     private final UnitOfMeasureService unitOfMeasureService;
 
+
+    @ModelAttribute("uomList")
+    public Flux<UnitOfMeasureCommand> sortedUnitOfMeasures() {
+        return getSortedListOfUnitOfMeasure();
+    }
+
+
     @GetMapping("/recipe/{recipeId}/ingredients")
     public String listRecipeIngredients(@PathVariable String recipeId, Model model) {
         Mono<RecipeCommand> recipe = recipeService.findCommandById(recipeId);
-        model.addAttribute("recipe", recipe);
-        return "recipe/ingredient/list";
+        model.addAttribute(RECIPE_ATTRIBUTE_NAME, recipe);
+        return RECIPE_INGREDIENT_LIST;
     }
+
 
     @GetMapping("/recipe/{recipeId}/ingredient/{ingredientId}/show")
     public String showRecipeIngredient(@PathVariable String recipeId, @PathVariable String ingredientId, Model model) {
         Mono<IngredientCommand> ingredient = ingredientService.findByRecipeIdAndIngredientId(recipeId, ingredientId);
-        model.addAttribute("ingredient", ingredient);
-        return "recipe/ingredient/show";
+        model.addAttribute(INGREDIENT_ATTRIBUTE_NAME, ingredient);
+        return RECIPE_INGREDIENT_SHOW;
     }
 
     @GetMapping("/recipe/{recipeId}/ingredient/{ingredientId}/update")
     public String updateRecipeIngredient(@PathVariable String recipeId, @PathVariable String ingredientId, Model model) {
         Mono<IngredientCommand> ingredient = ingredientService.findByRecipeIdAndIngredientId(recipeId, ingredientId);
-        model.addAttribute("ingredient", ingredient);
-        Flux<UnitOfMeasureCommand> sortedListOfUnitOfMeasure = getSortedListOfUnitOfMeasure();
-        model.addAttribute("uomList", sortedListOfUnitOfMeasure);
-        return "recipe/ingredient/ingredientform";
+        model.addAttribute(INGREDIENT_ATTRIBUTE_NAME, ingredient);
+        return RECIPE_INGREDIENT_INGREDIENTFORM;
     }
 
 
@@ -62,41 +74,38 @@ public class IngredientController {
 
 
     @PostMapping("/recipe/{recipeId}/ingredient")
-    public String saveOrUpdate(@ModelAttribute IngredientCommand command) {
-        IngredientCommand savedCommand = ingredientService.saveIngredientCommand(command).block();
-
-        log.debug("saved receipe id: " + savedCommand.getRecipeId());
-        log.debug("saved ingredient id: " + savedCommand.getId());
-//        Mono<IngredientCommand> savedCommand = ingredientService.saveIngredientCommand(command);
-//        savedCommand.doOnSuccess(ingredientCommand -> {
-//            log.debug("saved receipe id: " + ingredientCommand.getRecipeId());
-//            log.debug("saved ingredient id: " + ingredientCommand.getId());
-//        });
-        return "redirect:/recipe/" + savedCommand.getRecipeId() + "/ingredient/" + savedCommand.getId() + "/show";
+    public Mono<String> saveOrUpdate(
+            @Valid @ModelAttribute(INGREDIENT_ATTRIBUTE_NAME) Mono<IngredientCommand> command) {
+        return command.flatMap(ingredientService::saveIngredientCommand)
+                .flatMap(savedCommand -> {
+                    log.debug("saved receipe id: " + savedCommand.getRecipeId());
+                    log.debug("saved ingredient id: " + savedCommand.getId());
+                    return Mono.just("redirect:/recipe/" + savedCommand.getRecipeId() + "/ingredient/" +
+                                     savedCommand.getId() +
+                                     "/show");
+                })
+                .onErrorResume(throwable -> Mono.just(RECIPE_INGREDIENT_INGREDIENTFORM));
     }
 
+
     @GetMapping("/recipe/{recipeId}/ingredient/new")
-    public String newRecipeIngredient(@PathVariable String recipeId, Model model) {
-        RecipeCommand recipeCommand = recipeService.findCommandById(recipeId).block();
-        //todo raise exception if null
-
-        IngredientCommand ingredient = IngredientCommand.builder()
-                .id(UUID.randomUUID().toString())
-                .recipeId(recipeCommand.getId())
-                .build();
-        model.addAttribute("ingredient", ingredient);
-        Flux<UnitOfMeasureCommand> sortedListOfUnitOfMeasure = getSortedListOfUnitOfMeasure();
-        model.addAttribute("uomList", sortedListOfUnitOfMeasure);
-
-        return "recipe/ingredient/ingredientform";
+    public Mono<String> newRecipeIngredient(@PathVariable String recipeId, Model model) {
+        return recipeService.findCommandById(recipeId)
+                .flatMap(recipeCommand -> {
+                    IngredientCommand ingredient = IngredientCommand.builder()
+                            .id(UUID.randomUUID().toString())
+                            .recipeId(recipeCommand.getId())
+                            .build();
+                    model.addAttribute(INGREDIENT_ATTRIBUTE_NAME, ingredient);
+                    return Mono.just(RECIPE_INGREDIENT_INGREDIENTFORM);
+                });
     }
 
 
     @GetMapping({"/recipe/{recipeId}/ingredient/{ingredientId}/delete"})
-    public String delete(@PathVariable String recipeId, @PathVariable String ingredientId) {
+    public Mono<String> delete(@PathVariable String recipeId, @PathVariable String ingredientId) {
         log.info("delete recipe {} ingredient {}", recipeId, ingredientId);
-        ingredientService.deleteByRecipeIdAndIngredientId(recipeId, ingredientId).block();
-
-        return "redirect:/recipe/" + recipeId + "/ingredients";
+        return ingredientService.deleteByRecipeIdAndIngredientId(recipeId, ingredientId)
+                .thenReturn("redirect:/recipe/" + recipeId + "/ingredients");
     }
 }
