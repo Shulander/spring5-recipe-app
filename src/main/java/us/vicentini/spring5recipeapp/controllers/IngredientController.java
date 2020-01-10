@@ -67,7 +67,11 @@ public class IngredientController {
 
         log.debug("saved receipe id: " + savedCommand.getRecipeId());
         log.debug("saved ingredient id: " + savedCommand.getId());
-
+//        Mono<IngredientCommand> savedCommand = ingredientService.saveIngredientCommand(command);
+//        savedCommand.doOnSuccess(ingredientCommand -> {
+//            log.debug("saved receipe id: " + ingredientCommand.getRecipeId());
+//            log.debug("saved ingredient id: " + ingredientCommand.getId());
+//        });
         return "redirect:/recipe/" + savedCommand.getRecipeId() + "/ingredient/" + savedCommand.getId() + "/show";
     }
 
