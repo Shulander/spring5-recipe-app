@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.services.RecipeService;
 
@@ -27,7 +28,7 @@ public class RecipeController {
 
     @GetMapping({"/{id}/show"})
     public String showRecipe(@PathVariable String id, Model model) {
-        RecipeCommand recipe = recipeService.findCommandById(id).block();
+        Mono<RecipeCommand> recipe = recipeService.findCommandById(id);
         model.addAttribute("recipe", recipe);
         return "recipe/show";
     }
@@ -43,7 +44,7 @@ public class RecipeController {
 
     @GetMapping("/{id}/update")
     public String newRecipe(@PathVariable String id, Model model) {
-        RecipeCommand recipe = recipeService.findCommandById(id).block();
+        Mono<RecipeCommand> recipe = recipeService.findCommandById(id);
         model.addAttribute("recipe", recipe);
 
         return RECIPE_RECIPE_FORM;

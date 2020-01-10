@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import us.vicentini.spring5recipeapp.commands.IngredientCommand;
 import us.vicentini.spring5recipeapp.commands.RecipeCommand;
 import us.vicentini.spring5recipeapp.commands.UnitOfMeasureCommand;
@@ -15,7 +17,6 @@ import us.vicentini.spring5recipeapp.services.IngredientService;
 import us.vicentini.spring5recipeapp.services.RecipeService;
 import us.vicentini.spring5recipeapp.services.UnitOfMeasureService;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -32,32 +33,31 @@ public class IngredientController {
 
     @GetMapping("/recipe/{recipeId}/ingredients")
     public String listRecipeIngredients(@PathVariable String recipeId, Model model) {
-        RecipeCommand recipe = recipeService.findCommandById(recipeId).block();
+        Mono<RecipeCommand> recipe = recipeService.findCommandById(recipeId);
         model.addAttribute("recipe", recipe);
         return "recipe/ingredient/list";
     }
 
     @GetMapping("/recipe/{recipeId}/ingredient/{ingredientId}/show")
     public String showRecipeIngredient(@PathVariable String recipeId, @PathVariable String ingredientId, Model model) {
-        IngredientCommand ingredient = ingredientService.findByRecipeIdAndIngredientId(recipeId, ingredientId).block();
+        Mono<IngredientCommand> ingredient = ingredientService.findByRecipeIdAndIngredientId(recipeId, ingredientId);
         model.addAttribute("ingredient", ingredient);
         return "recipe/ingredient/show";
     }
 
     @GetMapping("/recipe/{recipeId}/ingredient/{ingredientId}/update")
     public String updateRecipeIngredient(@PathVariable String recipeId, @PathVariable String ingredientId, Model model) {
-        IngredientCommand ingredient = ingredientService.findByRecipeIdAndIngredientId(recipeId, ingredientId).block();
+        Mono<IngredientCommand> ingredient = ingredientService.findByRecipeIdAndIngredientId(recipeId, ingredientId);
         model.addAttribute("ingredient", ingredient);
-        model.addAttribute("uomList", getSortedListOfUnitOfMeasure());
+        Flux<UnitOfMeasureCommand> sortedListOfUnitOfMeasure = getSortedListOfUnitOfMeasure();
+        model.addAttribute("uomList", sortedListOfUnitOfMeasure);
         return "recipe/ingredient/ingredientform";
     }
 
 
-    private List<UnitOfMeasureCommand> getSortedListOfUnitOfMeasure() {
+    private Flux<UnitOfMeasureCommand> getSortedListOfUnitOfMeasure() {
         return unitOfMeasureService.listAllUoms()
-                .sort((o1, o2) -> Objects.compare(o1.getDescription(), o2.getDescription(), String::compareTo))
-                .collectList()
-                .block();
+                .sort((o1, o2) -> Objects.compare(o1.getDescription(), o2.getDescription(), String::compareTo));
     }
 
 
@@ -81,7 +81,8 @@ public class IngredientController {
                 .recipeId(recipeCommand.getId())
                 .build();
         model.addAttribute("ingredient", ingredient);
-        model.addAttribute("uomList", getSortedListOfUnitOfMeasure());
+        Flux<UnitOfMeasureCommand> sortedListOfUnitOfMeasure = getSortedListOfUnitOfMeasure();
+        model.addAttribute("uomList", sortedListOfUnitOfMeasure);
 
         return "recipe/ingredient/ingredientform";
     }

@@ -5,10 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import reactor.core.publisher.Flux;
 import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.services.RecipeService;
-
-import java.util.List;
 
 @Slf4j
 @Controller
@@ -21,7 +20,7 @@ public class IndexController {
     public String getIndexPage(Model model) {
         log.info("redirecting to index page");
 
-        List<Recipe> recipes = recipeService.getRecipes().collectList().block();
+        Flux<Recipe> recipes = recipeService.getRecipes();
         model.addAttribute("recipes", recipes);
 
         return "index";
