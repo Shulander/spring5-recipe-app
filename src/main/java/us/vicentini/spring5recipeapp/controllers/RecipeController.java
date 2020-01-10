@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +21,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class RecipeController {
     private static final String RECIPE_RECIPE_FORM = "recipe/recipeform";
+    public static final String RECIPE_ATTRIBUTE_NAME = "recipe";
 
     private final RecipeService recipeService;
 
@@ -29,14 +29,14 @@ public class RecipeController {
     @GetMapping({"/{id}/show"})
     public String showRecipe(@PathVariable String id, Model model) {
         Mono<RecipeCommand> recipe = recipeService.findCommandById(id);
-        model.addAttribute("recipe", recipe);
+        model.addAttribute(RECIPE_ATTRIBUTE_NAME, recipe);
         return "recipe/show";
     }
 
 
     @GetMapping("/new")
     public String newRecipe(Model model) {
-        model.addAttribute("recipe", new RecipeCommand());
+        model.addAttribute(RECIPE_ATTRIBUTE_NAME, new RecipeCommand());
 
         return RECIPE_RECIPE_FORM;
     }
@@ -45,20 +45,17 @@ public class RecipeController {
     @GetMapping("/{id}/update")
     public String newRecipe(@PathVariable String id, Model model) {
         Mono<RecipeCommand> recipe = recipeService.findCommandById(id);
-        model.addAttribute("recipe", recipe);
+        model.addAttribute(RECIPE_ATTRIBUTE_NAME, recipe);
 
         return RECIPE_RECIPE_FORM;
     }
 
 
     @PostMapping
-    public String saveOrUpdate(@Valid @ModelAttribute("recipe") RecipeCommand command, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return RECIPE_RECIPE_FORM;
-        }
-        RecipeCommand savedCommand = recipeService.saveRecipeCommand(command).block();
-
-        return "redirect:/recipe/" + savedCommand.getId() + "/show/";
+    public Mono<String> saveOrUpdate(@Valid @ModelAttribute(RECIPE_ATTRIBUTE_NAME) Mono<RecipeCommand> command) {
+        return command.flatMap(recipeService::saveRecipeCommand)
+                .map(recipeCommand -> "redirect:/recipe/" + recipeCommand.getId() + "/show/")
+                .onErrorResume(throwable -> Mono.just(RECIPE_RECIPE_FORM));
     }
 
 
