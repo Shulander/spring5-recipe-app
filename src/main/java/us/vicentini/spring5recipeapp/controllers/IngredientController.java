@@ -39,7 +39,7 @@ public class IngredientController {
 
 
     @ModelAttribute("uomList")
-    public Flux<UnitOfMeasureCommand> sortedUnitOfMeasures() {
+    public Flux<UnitOfMeasureCommand> sortedUnitOfMeasureCollection() {
         return getSortedListOfUnitOfMeasure();
     }
 
@@ -59,8 +59,10 @@ public class IngredientController {
         return RECIPE_INGREDIENT_SHOW;
     }
 
+
     @GetMapping("/recipe/{recipeId}/ingredient/{ingredientId}/update")
-    public String updateRecipeIngredient(@PathVariable String recipeId, @PathVariable String ingredientId, Model model) {
+    public String updateRecipeIngredient(@PathVariable String recipeId, @PathVariable String ingredientId,
+                                         Model model) {
         Mono<IngredientCommand> ingredient = ingredientService.findByRecipeIdAndIngredientId(recipeId, ingredientId);
         model.addAttribute(INGREDIENT_ATTRIBUTE_NAME, ingredient);
         return RECIPE_INGREDIENT_INGREDIENTFORM;
