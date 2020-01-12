@@ -1,14 +1,17 @@
 package us.vicentini.spring5recipeapp.services;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
+import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.exceptions.NotFoundException;
 import us.vicentini.spring5recipeapp.repositories.RecipeReactiveRepository;
 
-import java.io.IOException;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.Arrays;
 
 @Slf4j
@@ -20,26 +23,36 @@ public class ImageServiceImpl implements ImageService {
 
 
     @Override
-    public Mono<Void> saveImageFile(String recipeId, MultipartFile multipartFile) {
-        return recipeRepository.findById(recipeId)
+    public Mono<Void> saveImageFile(String recipeId, FilePart filePart) {
+        return Mono.zip(recipeRepository.findById(recipeId),
+                        saveToTmpFile(filePart))
                 .switchIfEmpty(Mono.error(new NotFoundException("Recipe Not Found for id: " + recipeId)))
-                .map(recipe -> {
-                    recipe.setImage(getImageBytes(multipartFile));
-                    return recipe;
+                .flatMap(objects -> {
+                    Recipe recipe = objects.getT1();
+                    recipe.setImage(getImageBytes(objects.getT2()));
+                    return Mono.just(recipe);
                 })
                 .flatMap(recipeRepository::save)
-                .flatMap(recipe -> Mono.empty());
+                .then();
     }
 
 
-    private Byte[] getImageBytes(MultipartFile multipartFile) {
-        try {
-            byte[] originalFile = multipartFile.getBytes();
-            Byte[] imageBytes = new Byte[originalFile.length];
-            Arrays.setAll(imageBytes, n -> originalFile[n]);
-            return imageBytes;
-        } catch (IOException e) {
-            throw new NotFoundException("Error getting bytes from image: " + multipartFile.getOriginalFilename(), e);
-        }
+    @SneakyThrows
+    private Mono<File> saveToTmpFile(FilePart filePart) {
+        File tmpImageFile = File.createTempFile("image-", filePart.filename());
+        log.info(tmpImageFile.getAbsolutePath());
+        return filePart
+                .transferTo(tmpImageFile)
+                .thenReturn(tmpImageFile);
+    }
+
+
+    @SneakyThrows
+    private Byte[] getImageBytes(File tmpImageFile) {
+        byte[] originalFile = Files.readAllBytes(tmpImageFile.toPath());
+        Byte[] imageBytes = new Byte[originalFile.length];
+        Arrays.setAll(imageBytes, n -> originalFile[n]);
+        tmpImageFile.delete();
+        return imageBytes;
     }
 }

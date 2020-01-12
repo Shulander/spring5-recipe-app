@@ -45,7 +45,7 @@ public class ControllerExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Throwable.class)
     public String handleWebExchangeBindException(Throwable ex, Model model) {
-        log.error("Handling Exceptions: {}", ex.getMessage());
+        log.error("Handling Exceptions: {}", ex.getMessage(), ex);
         model.addAttribute(EXCEPTION_ATTRIBUTE_NAME, ex);
         return "500error";
     }
