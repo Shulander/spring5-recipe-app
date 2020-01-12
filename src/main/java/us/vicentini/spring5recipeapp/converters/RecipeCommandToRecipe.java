@@ -15,6 +15,7 @@ public class RecipeCommandToRecipe implements Converter<RecipeCommand, Recipe> {
     private final IngredientCommandToIngredient ingredientCommandToIngredient;
     private final NotesCommandToNotes notesCommandToNotes;
 
+
     @Override
     public Recipe convert(RecipeCommand recipeCommand) {
         if (recipeCommand == null) {
@@ -43,6 +44,7 @@ public class RecipeCommandToRecipe implements Converter<RecipeCommand, Recipe> {
 
         return returnRecipe;
     }
+
 
     private Byte[] copyImageByteArray(Byte[] image) {
         if (image == null) {

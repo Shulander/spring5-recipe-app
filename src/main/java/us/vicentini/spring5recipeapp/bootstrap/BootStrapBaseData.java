@@ -33,7 +33,8 @@ public class BootStrapBaseData implements ApplicationListener<ContextRefreshedEv
         }
     }
 
-    private void loadCategories(){
+
+    private void loadCategories() {
         Category cat1 = Category.builder().description("American").build();
         categoryRepository.save(cat1).block();
 
@@ -47,7 +48,8 @@ public class BootStrapBaseData implements ApplicationListener<ContextRefreshedEv
         categoryRepository.save(cat4).block();
     }
 
-    private void loadUom(){
+
+    private void loadUom() {
         UnitOfMeasure uom1 = UnitOfMeasure.builder().description("Teaspoon").build();
         unitOfMeasureRepository.save(uom1).block();
 

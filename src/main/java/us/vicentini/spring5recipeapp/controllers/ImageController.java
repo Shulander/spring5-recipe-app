@@ -19,6 +19,7 @@ public class ImageController {
     private final ImageService imageService;
     private final RecipeService recipeService;
 
+
     @GetMapping("/recipe/{recipeId}/image")
     public String getImageForm(@PathVariable String recipeId, Model model) {
         Mono<RecipeCommand> recipe = recipeService.findCommandById(recipeId);

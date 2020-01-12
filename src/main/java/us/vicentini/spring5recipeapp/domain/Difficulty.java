@@ -10,6 +10,7 @@ public enum Difficulty {
     @Getter
     private final String text;
 
+
     Difficulty(String text) {
         this.text = text;
     }

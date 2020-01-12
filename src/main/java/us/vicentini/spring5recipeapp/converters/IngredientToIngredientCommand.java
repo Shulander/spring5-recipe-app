@@ -11,6 +11,7 @@ import us.vicentini.spring5recipeapp.domain.Ingredient;
 public class IngredientToIngredientCommand implements Converter<Ingredient, IngredientCommand> {
     private final UnitOfMeasureToUnitOfMeasureCommand unitOfMeasureToUnitOfMeasureCommand;
 
+
     @Override
     public IngredientCommand convert(Ingredient ingredient) {
         if (ingredient == null) {

@@ -38,17 +38,20 @@ public class Recipe {
     @Builder.Default
     private Set<Category> categories = new HashSet<>();
 
+
     public void setNotes(Notes notes) {
         if (notes != null) {
             this.notes = notes;
         }
     }
 
+
     public void addIngredient(Ingredient ingredient) {
         if (ingredient != null) {
             ingredients.add(ingredient);
         }
     }
+
 
     public void addCategory(Category category) {
         if (category != null) {
