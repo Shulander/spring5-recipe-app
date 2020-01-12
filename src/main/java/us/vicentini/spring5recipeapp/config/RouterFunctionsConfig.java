@@ -11,10 +11,10 @@ import us.vicentini.spring5recipeapp.domain.Recipe;
 import us.vicentini.spring5recipeapp.services.RecipeService;
 
 @Configuration
-public class WebConfig {
+public class RouterFunctionsConfig {
 
     @Bean
-    RouterFunction<ServerResponse> routes(RecipeService recipeService) {
+    public RouterFunction<ServerResponse> routes(RecipeService recipeService) {
         return RouterFunctions.route(RequestPredicates.GET("/api/recipes"),
                                      serverRequest -> ServerResponse
                                              .ok()
